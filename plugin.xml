@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        id="cordova-plugin-cszbar" version="1.3.2">
+        id="cordova-plugin-timpex-zbar" version="1.3.2">
 
     <engines>
         <engine name="cordova" version=">=3.0.0" />
     </engines>
 
     <name>ZBar barcode scanner</name>
-    <author>TJ Woon (tj@cloudsky.org)</author>
+    <author>Timpex AS (tj@cloudsky.org)</author>
     <description>Plugin to integrate with the ZBar barcode scanning library.</description>
     <license>Apache 2.0</license>
-    <keywords>cszbar,zbar,barcode,qr,qr code,scanner</keywords>
+    <keywords>timpex-zbar,zbar,barcode,qr,qr code,scanner</keywords>
 
     <js-module src="www/zbar.js" name="zBar">
         <clobbers target="cloudSky.zBar" />
@@ -107,7 +107,7 @@
         <header-file src="ios/ZBarSDK/zbar/Symbol.h" />
         <header-file src="ios/ZBarSDK/zbar/Video.h" />
         <header-file src="ios/ZBarSDK/zbar/Window.h" />
-        <resource-file src="ios/Resources/CsZBarScanView.xib" />
+        <resource-file src="ios/OverlayView.xib" />
     </platform>
 
 </plugin>

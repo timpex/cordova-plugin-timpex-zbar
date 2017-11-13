@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Image;
@@ -71,6 +72,7 @@ implements SurfaceHolder.Callback {
     // Customisable stuff
     String whichCamera;
     String flashMode;
+    private boolean linearOnly;
 
     // For retrieving R.* resources, from the actual app package
     // (we can't use actual.application.package.R.* in our code as we
@@ -138,14 +140,20 @@ implements SurfaceHolder.Callback {
             String textTitle = params.optString("text_title");
             String textInstructions = params.optString("text_instructions");
             Boolean drawSight = params.optBoolean("drawSight", true);
+            linearOnly = params.optBoolean("linearOnly", false);
             whichCamera = params.optString("camera");
             flashMode = params.optString("flash");
 
             // Initiate instance variables
             autoFocusHandler = new Handler();
             scanner = new ImageScanner();
-            scanner.setConfig(0, Config.X_DENSITY, 3);
-            scanner.setConfig(0, Config.Y_DENSITY, 3);
+            if(linearOnly) {
+                scanner.setConfig(0, Config.X_DENSITY, 6);
+                scanner.setConfig(0, Config.Y_DENSITY, 1);
+            } else {
+                scanner.setConfig(0, Config.X_DENSITY, 3);
+                scanner.setConfig(0, Config.Y_DENSITY, 3);
+            }
 
             // Set the config for barcode formats
             for(ZBarcodeFormat format : getFormats()) {
@@ -398,9 +406,16 @@ implements SurfaceHolder.Callback {
         public void onPreviewFrame(byte[] data, Camera camera) {
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
+            Image barcode;
 
-            Image barcode = new Image(size.width, size.height, "Y800");
-            barcode.setData(data);
+            if(linearOnly) {
+                barcode = new Image(size.width, 3, "Y800");
+                byte[] dataFrame = getSliceOfImage(data, size.width, size.height);
+                barcode.setData(dataFrame);
+            } else {
+                barcode = new Image(size.width, size.height, "Y800");
+                barcode.setData(data);
+            }
 
             if (scanner.scanImage(barcode) != 0) {
                 String qrValue = "";
@@ -419,6 +434,18 @@ implements SurfaceHolder.Callback {
             }
         }
     };
+
+    private byte[] getSliceOfImage(byte[] data, int width, int height) {
+        if(width < height) {
+            return Arrays.copyOfRange(data, width * (height/2 - 1), width * (height/2 + 1));
+        }
+
+        byte[] dataFrame = new byte[height];
+        for(int i = 0; i < height; i++) {
+            dataFrame[i] = data[i*width + width/2];
+        }
+        return dataFrame;
+    }
 
     // Misc ------------------------------------------------------------
 

@@ -8,6 +8,7 @@
 @property bool scanInProgress;
 @property NSString *scanCallbackId;
 @property AlmaZBarReaderViewController *scanReader;
+@property (weak, nonatomic) IBOutlet UIView *sightLine;
 
 @end
 
@@ -18,6 +19,7 @@
 @synthesize scanInProgress;
 @synthesize scanCallbackId;
 @synthesize scanReader;
+@synthesize sightLine;
 
 #pragma mark - Cordova Plugin
 
@@ -72,6 +74,7 @@
         }
 
         // Hack to hide the bottom bar's Info button... originally based on http://stackoverflow.com/a/16353530
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 110000
 	NSInteger infoButtonIndex;
         if ([[[UIDevice currentDevice] systemVersion] compare:@"10.0" options:NSNumericSearch] != NSOrderedAscending) {
             infoButtonIndex = 1;
@@ -80,35 +83,32 @@
         }
         UIView *infoButton = [[[[[self.scanReader.view.subviews objectAtIndex:2] subviews] objectAtIndex:0] subviews] objectAtIndex:infoButtonIndex];
         [infoButton setHidden:YES];
-
-        //UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem]; [button setTitle:@"Press Me" forState:UIControlStateNormal]; [button sizeToFit]; [self.view addSubview:button];
+#endif
         CGRect screenRect = [[UIScreen mainScreen] bounds];
         CGFloat screenWidth = screenRect.size.width;
         CGFloat screenHeight = screenRect.size.height;
         
-        BOOL drawSight = [params objectForKey:@"drawSight"] ? [[params objectForKey:@"drawSight"] boolValue] : true;
-        UIToolbar *toolbarViewFlash = [[UIToolbar alloc] init];
-        
-        //The bar length it depends on the orientation
-        toolbarViewFlash.frame = CGRectMake(0.0, 0, (screenWidth > screenHeight ?screenWidth:screenHeight), 44.0);
-        toolbarViewFlash.barStyle = UIBarStyleBlackOpaque;
-        UIBarButtonItem *buttonFlash = [[UIBarButtonItem alloc] initWithTitle:@"Flash" style:UIBarButtonItemStyleDone target:self action:@selector(toggleflash)];
-        
-        NSArray *buttons = [NSArray arrayWithObjects: buttonFlash, nil];
-        [toolbarViewFlash setItems:buttons animated:NO];
-        [self.scanReader.view addSubview:toolbarViewFlash];
+        BOOL drawSight = [[params objectForKey:@"drawSight"] boolValue];
 
-        if (drawSight) {
-            CGFloat dim = screenWidth < screenHeight ? screenWidth / 1.1 : screenHeight / 1.1;
-            UIView *polygonView = [[UIView alloc] initWithFrame: CGRectMake  ( (screenWidth/2) - (dim/2), (screenHeight/2) - (dim/2), dim, dim)];
-            
-            UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0,dim / 2, dim, 1)];
-            lineView.backgroundColor = [UIColor redColor];
-            [polygonView addSubview:lineView];
-
-            self.scanReader.cameraOverlayView = polygonView;
+        BOOL linearOnly = [[params objectForKey:@"linearOnly"] boolValue];
+        self.scanReader.linearOnly = linearOnly;
+        if (linearOnly) {
+            if(screenWidth >= screenHeight)
+                self.scanReader.scanCrop = CGRectMake(0.0, 0.495, 1.0, 0.01);
+            else
+                self.scanReader.scanCrop = CGRectMake(0.495, 0.0, 0.01, 1.0);
         }
 
+        UIView *overlayView = [[[NSBundle mainBundle] loadNibNamed:@"OverlayView" owner:self options:nil] lastObject];
+        if(drawSight)
+            [sightLine setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75f]];
+        else
+            [sightLine setBackgroundColor:[UIColor clearColor]];
+        
+        self.scanReader.showsZBarControls = NO;
+        self.scanReader.showsCameraControls = NO;
+        self.scanReader.cameraOverlayView = overlayView;
+        
         [self.viewController presentViewController:self.scanReader animated:YES completion:nil];
     }
 }
@@ -136,6 +136,21 @@
     [self.commandDelegate sendPluginResult: result callbackId: self.scanCallbackId];
 }
 
+#pragma mark - Button callbacks
+
+- (IBAction)toggleFlashPressed:(id)sender {
+    [self toggleflash];
+}
+
+- (IBAction)cancelPressed:(id)sender {
+    [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
+        self.scanInProgress = NO;
+        [self sendScanResult: [CDVPluginResult
+                               resultWithStatus: CDVCommandStatus_ERROR
+                               messageAsString: @"cancelled"]];
+    }];
+}
+
 #pragma mark - ZBarReaderDelegate
 
 - (void) imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo {
@@ -151,12 +166,12 @@
     
     ZBarSymbol *symbol = nil;
     for (symbol in results) break; // get the first result
-
+    
     [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
         self.scanInProgress = NO;
         [self sendScanResult: [CDVPluginResult
-                               resultWithStatus: CDVCommandStatus_OK
-                               messageAsString: symbol.data]];
+                                resultWithStatus: CDVCommandStatus_OK
+                                messageAsString: symbol.data]];
     }];
 }
 

@@ -9,5 +9,5 @@
 #import "ZBarReaderViewController.h"
 
 @interface AlmaZBarReaderViewController : ZBarReaderViewController
-
+@property BOOL linearOnly;
 @end
