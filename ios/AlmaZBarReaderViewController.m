@@ -44,6 +44,9 @@
 
 - (void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    [self.readerView setFrame:screenRect];
     
     UIToolbar* toolbar = [[controls subviews] firstObject];
     if (![toolbar isKindOfClass:UIToolbar.class])
@@ -67,6 +70,7 @@
     [super viewDidAppear:animated];
     
     CGRect screenRect = [[UIScreen mainScreen] bounds];
+    [self.readerView setFrame:screenRect];
     
     [self.cameraOverlayView setFrame:screenRect];
     [self.cameraOverlayView layoutIfNeeded];
