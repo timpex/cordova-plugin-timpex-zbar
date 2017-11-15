@@ -91,7 +91,7 @@ implements SurfaceHolder.Callback {
 
     @Override
     public void onCreate (Bundle savedInstanceState) {
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         int permissionCheck = ContextCompat.checkSelfPermission(this.getBaseContext(), Manifest.permission.CAMERA);
 
@@ -180,7 +180,7 @@ implements SurfaceHolder.Callback {
                 public void onSizeChanged (int w, int h, int oldW, int oldH) {
                     surfW = w;
                     surfH = h;
-                    matchSurfaceToPreviewRatio();
+                    c();
                 }
             };
             scannerSurface.setLayoutParams(new FrameLayout.LayoutParams(
@@ -264,6 +264,7 @@ implements SurfaceHolder.Callback {
     @Override
     public void onDestroy ()
     {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         if(scanner != null) scanner.destroy();
         super.onDestroy();
     }
@@ -476,7 +477,7 @@ implements SurfaceHolder.Callback {
 
     // Match the aspect ratio of the preview SurfaceView with the camera's preview aspect ratio,
     // so that the displayed preview is not stretched/squashed.
-    private void matchSurfaceToPreviewRatio () {
+    private void c () {
         if(camera == null) return;
         if(surfW == 0 || surfH == 0) return;
 
