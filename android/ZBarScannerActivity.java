@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.Camera;
@@ -477,7 +478,7 @@ implements SurfaceHolder.Callback {
 
     // Match the aspect ratio of the preview SurfaceView with the camera's preview aspect ratio,
     // so that the displayed preview is not stretched/squashed.
-    private void c () {
+    private void matchSurfaceToPreviewRatio () {
         if(camera == null) return;
         if(surfW == 0 || surfH == 0) return;
 
