@@ -181,7 +181,7 @@ implements SurfaceHolder.Callback {
                 public void onSizeChanged (int w, int h, int oldW, int oldH) {
                     surfW = w;
                     surfH = h;
-                    c();
+                    matchSurfaceToPreviewRatio();
                 }
             };
             scannerSurface.setLayoutParams(new FrameLayout.LayoutParams(
