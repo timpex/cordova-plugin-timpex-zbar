@@ -76,7 +76,7 @@
     [super viewDidAppear:animated];
     
     CGRect screenRect = [[UIScreen mainScreen] bounds];
-    
+    [self.readerView setFrame:screenRect];
     [self updateScanCrop];
     
     [self.cameraOverlayView setFrame:screenRect];
