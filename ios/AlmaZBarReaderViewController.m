@@ -12,8 +12,22 @@
 @end
 
 @implementation AlmaZBarReaderViewController
-@synthesize linearOnly;
+@synthesize inQrMode;
 
+- (void)updateScanCrop {
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGFloat screenWidth = screenRect.size.width;
+    CGFloat screenHeight = screenRect.size.height;
+    
+    if(!self.inQrMode) {
+        if(screenWidth >= screenHeight)
+            self.scanCrop = CGRectMake(0.0, 0.495, 1.0, 0.01);
+        else
+            self.scanCrop = CGRectMake(0.495, 0.0, 0.01, 1.0);
+    } else {
+        self.scanCrop = CGRectMake(0.0, 0.0, 1.0, 1.0);
+    }
+}
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
@@ -30,23 +44,15 @@
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation) fromInterfaceOrientation {
     CGRect screenRect = [[UIScreen mainScreen] bounds];
-    CGFloat screenWidth = screenRect.size.width;
-    CGFloat screenHeight = screenRect.size.height;
-    if (self.linearOnly) {
-        if(screenWidth >= screenHeight)
-            self.scanCrop = CGRectMake(0.0, 0.495, 1.0, 0.01);
-        else
-            self.scanCrop = CGRectMake(0.495, 0.0, 0.01, 1.0);
-    }
+    
+    [self updateScanCrop];
+    
     [self.cameraOverlayView setFrame:screenRect];
     [self.cameraOverlayView layoutIfNeeded];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-
-    CGRect screenRect = [[UIScreen mainScreen] bounds];
-    [self.readerView setFrame:screenRect];
     
     UIToolbar* toolbar = [[controls subviews] firstObject];
     if (![toolbar isKindOfClass:UIToolbar.class])
@@ -70,7 +76,8 @@
     [super viewDidAppear:animated];
     
     CGRect screenRect = [[UIScreen mainScreen] bounds];
-    [self.readerView setFrame:screenRect];
+    
+    [self updateScanCrop];
     
     [self.cameraOverlayView setFrame:screenRect];
     [self.cameraOverlayView layoutIfNeeded];

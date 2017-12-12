@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
         <development version="8000" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CsZBar">
             <connections>
                 <outlet property="sightLine" destination="hx8-9W-KBU" id="D4C-oX-GKz"/>
+                <outlet property="switchModeButton" destination="x0r-Y9-g1R" id="o4c-W2-r70"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
@@ -37,7 +38,14 @@
                         <outlet property="delegate" destination="-1" id="lF8-Q4-vvw"/>
                     </connections>
                 </toolbar>
-                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="oR6-tU-ecW">
+                <view tag="100" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hx8-9W-KBU">
+                    <rect key="frame" x="20" y="367.66666666666669" width="374" height="1"/>
+                    <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="0.75352112680000005" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="jWY-Zk-GSa"/>
+                    </constraints>
+                </view>
+                <toolbar autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="oR6-tU-ecW">
                     <rect key="frame" x="0.0" y="692" width="414" height="44"/>
                     <color key="backgroundColor" white="1" alpha="0.5" colorSpace="calibratedWhite"/>
                     <constraints>
@@ -49,15 +57,14 @@
                                 <action selector="cancelPressed:" destination="-1" id="Ufm-C0-sj0"/>
                             </connections>
                         </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="JTi-PY-dNH"/>
+                        <barButtonItem title="Switch to QR" id="x0r-Y9-g1R">
+                            <connections>
+                                <action selector="switchModePressed:" destination="-1" id="7wZ-Xo-fEa"/>
+                            </connections>
+                        </barButtonItem>
                     </items>
                 </toolbar>
-                <view tag="100" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hx8-9W-KBU">
-                    <rect key="frame" x="20" y="367.66666666666669" width="374" height="1"/>
-                    <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="0.75352112680000005" colorSpace="calibratedRGB"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="1" id="jWY-Zk-GSa"/>
-                    </constraints>
-                </view>
             </subviews>
             <constraints>
                 <constraint firstItem="hx8-9W-KBU" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="20" id="Pjh-bw-nC9"/>

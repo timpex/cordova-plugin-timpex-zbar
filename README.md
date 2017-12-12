@@ -28,7 +28,7 @@ Arguments:
         text_instructions: "OPTIONAL Instruction Text - default = 'Please point your camera at the QR code.'", // Android only
         camera: "front" || "back" // defaults to "back"
         flash: "on" || "off" || "auto" // defaults to "auto". See Quirks
-        drawSight: true || false //defaults to true, create a red sight/line in the center of the scanner view.
+        linearOnly: true || false // allow scanning of 2d codes. If linearOnly is true, a red line will show the active area of the camera. Not setting this will start the scanner in the last mode used.
     }
     ```
 

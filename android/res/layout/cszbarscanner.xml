@@ -25,14 +25,29 @@
         android:layout_width="296dp"
         android:layout_height="wrap_content"
         android:paddingTop="5dp"
-        android:paddingBottom="15dp"
+        android:paddingBottom="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
+        android:layout_marginBottom="60dp"
         android:gravity="center"
         android:textSize="8pt"
         android:textColor="@color/csZbarScannerTextColor"
         android:fontFamily="sans-serif-light"
         android:text="@string/csZbarScannerInstructions" />
+
+    <Button
+        android:id="@+id/csZbarSwitchModeButton"
+        android:layout_gravity="left|bottom"
+        android:paddingTop="15dp"
+        android:paddingRight="25dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="25dp"
+        android:layout_marginLeft="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/csZbarScannerTextBackground"
+        android:textColor="#FFFFFF"
+        android:text="Switch to Barcode" />
 
     <RelativeLayout android:id="@+id/csZbarScannerSightContainer"
         android:layout_width="wrap_content"

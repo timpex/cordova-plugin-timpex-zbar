@@ -9,6 +9,7 @@
 @property NSString *scanCallbackId;
 @property AlmaZBarReaderViewController *scanReader;
 @property (weak, nonatomic) IBOutlet UIView *sightLine;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *switchModeButton;
 
 @end
 
@@ -20,6 +21,7 @@
 @synthesize scanCallbackId;
 @synthesize scanReader;
 @synthesize sightLine;
+@synthesize switchModeButton;
 
 #pragma mark - Cordova Plugin
 
@@ -84,26 +86,20 @@
         UIView *infoButton = [[[[[self.scanReader.view.subviews objectAtIndex:2] subviews] objectAtIndex:0] subviews] objectAtIndex:infoButtonIndex];
         [infoButton setHidden:YES];
 #endif
-        CGRect screenRect = [[UIScreen mainScreen] bounds];
-        CGFloat screenWidth = screenRect.size.width;
-        CGFloat screenHeight = screenRect.size.height;
-        
-        BOOL drawSight = [[params objectForKey:@"drawSight"] boolValue];
-
-        BOOL linearOnly = [[params objectForKey:@"linearOnly"] boolValue];
-        self.scanReader.linearOnly = linearOnly;
-        if (linearOnly) {
-            if(screenWidth >= screenHeight)
-                self.scanReader.scanCrop = CGRectMake(0.0, 0.495, 1.0, 0.01);
-            else
-                self.scanReader.scanCrop = CGRectMake(0.495, 0.0, 0.01, 1.0);
+        if([params objectForKey:@"linearOnly"] != nil) {
+            self.scanReader.inQrMode = ![[params objectForKey:@"linearOnly"] boolValue];
+        } else {
+            self.scanReader.inQrMode = [self getModeFromUserDefaults];
         }
-
+        
         UIView *overlayView = [[[NSBundle mainBundle] loadNibNamed:@"OverlayView" owner:self options:nil] lastObject];
-        if(drawSight)
-            [sightLine setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75f]];
-        else
+        [self updateModeButtonTitle];
+        
+        if(self.scanReader.inQrMode) {
             [sightLine setBackgroundColor:[UIColor clearColor]];
+        } else {
+            [sightLine setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75f]];
+        }
         
         self.scanReader.showsZBarControls = NO;
         self.scanReader.showsCameraControls = NO;
@@ -136,6 +132,38 @@
     [self.commandDelegate sendPluginResult: result callbackId: self.scanCallbackId];
 }
 
+- (void)updateModeButtonTitle {
+    if(self.scanReader.inQrMode)
+        [switchModeButton setTitle:@"Switch to Linear"];
+    else
+        [switchModeButton setTitle:@"Switch to Mixed"];
+}
+
+- (BOOL)getModeFromUserDefaults {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if([[[defaults dictionaryRepresentation] allKeys] containsObject:@"timpex-zbar-inQrMode"]) {
+        return [defaults boolForKey:@"timpex-zbar-inQrMode"];
+    }
+    return YES;
+}
+
+- (void)setMode:(BOOL)inQrMode {
+    self.scanReader.inQrMode = inQrMode;
+    if(!self.scanReader.inQrMode) {
+        [sightLine setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75f]];
+        [switchModeButton setTitle:@"Switch to Mixed"];
+    } else {
+        [sightLine setBackgroundColor:[UIColor clearColor]];
+        [switchModeButton setTitle:@"Switch to Linear"];
+    }
+    [self.scanReader updateScanCrop];
+    
+    // Remember choice for later
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:self.scanReader.inQrMode forKey:@"timpex-zbar-inQrMode"];
+    [defaults synchronize];
+}
+
 #pragma mark - Button callbacks
 
 - (IBAction)toggleFlashPressed:(id)sender {
@@ -149,6 +177,9 @@
                                resultWithStatus: CDVCommandStatus_ERROR
                                messageAsString: @"cancelled"]];
     }];
+}
+- (IBAction)switchModePressed:(id)sender {
+    [self setMode:!self.scanReader.inQrMode];
 }
 
 #pragma mark - ZBarReaderDelegate

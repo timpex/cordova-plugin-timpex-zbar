@@ -1,4 +1,4 @@
-package org.cloudsky.cordovaPlugins;
+package no.timpex.zbar;
 
 import java.io.IOException;
 import java.lang.RuntimeException;
@@ -7,10 +7,14 @@ import org.json.JSONObject;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
@@ -28,9 +32,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Button;
 import android.content.pm.PackageManager;
 import android.view.Surface;
-
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +50,7 @@ import net.sourceforge.zbar.SymbolSet;
 import net.sourceforge.zbar.Config;
 
 public class ZBarScannerActivity extends Activity
-implements SurfaceHolder.Callback {
+implements SurfaceHolder.Callback, View.OnClickListener {
 
     //for barcode types
     private Collection<ZBarcodeFormat> mFormats = null;
@@ -73,7 +77,7 @@ implements SurfaceHolder.Callback {
     // Customisable stuff
     String whichCamera;
     String flashMode;
-    private boolean linearOnly;
+    private boolean inQrMode;
 
     // For retrieving R.* resources, from the actual app package
     // (we can't use actual.application.package.R.* in our code as we
@@ -131,78 +135,85 @@ implements SurfaceHolder.Callback {
     private void setUpCamera() {
         // If request is cancelled, the result arrays are empty.
 
+        // Get parameters from JS
+        Intent startIntent = getIntent();
+        String paramStr = startIntent.getStringExtra(EXTRA_PARAMS);
+        JSONObject params;
+        try { params = new JSONObject(paramStr); }
+        catch (JSONException e) { params = new JSONObject(); }
+        String textTitle = params.optString("text_title");
+        String textInstructions = params.optString("text_instructions");
+        whichCamera = params.optString("camera");
+        flashMode = params.optString("flash");
+        
+        // Initiate instance variables
+        autoFocusHandler = new Handler();
+        scanner = new ImageScanner();
 
-            // Get parameters from JS
-            Intent startIntent = getIntent();
-            String paramStr = startIntent.getStringExtra(EXTRA_PARAMS);
-            JSONObject params;
-            try { params = new JSONObject(paramStr); }
-            catch (JSONException e) { params = new JSONObject(); }
-            String textTitle = params.optString("text_title");
-            String textInstructions = params.optString("text_instructions");
-            Boolean drawSight = params.optBoolean("drawSight", true);
-            linearOnly = params.optBoolean("linearOnly", false);
-            whichCamera = params.optString("camera");
-            flashMode = params.optString("flash");
+        // Set the config for barcode formats
+        for(ZBarcodeFormat format : getFormats()) {
+            scanner.setConfig(format.getId(), Config.ENABLE, 1);
+        }
 
-            // Initiate instance variables
-            autoFocusHandler = new Handler();
-            scanner = new ImageScanner();
-            if(linearOnly) {
-                scanner.setConfig(0, Config.X_DENSITY, 6);
-                scanner.setConfig(0, Config.Y_DENSITY, 1);
-            } else {
-                scanner.setConfig(0, Config.X_DENSITY, 3);
-                scanner.setConfig(0, Config.Y_DENSITY, 3);
+        // Set content view
+        setContentView(getResourceId("layout/cszbarscanner"));
+
+        // Update view with customisable strings
+        TextView view_textTitle = (TextView) findViewById(getResourceId("id/csZbarScannerTitle"));
+        TextView view_textInstructions = (TextView) findViewById(getResourceId("id/csZbarScannerInstructions"));
+        view_textTitle.setText(textTitle);
+        view_textInstructions.setText(textInstructions);
+
+        // Draw/hide the sight
+        findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.INVISIBLE);
+        android.widget.Button switchModeButton = (android.widget.Button) findViewById(getResourceId("id/csZbarSwitchModeButton"));
+        switchModeButton.setOnClickListener(this);
+
+        // Create preview SurfaceView
+        scannerSurface = new SurfaceView (this) {
+            @Override
+            public void onSizeChanged (int w, int h, int oldW, int oldH) {
+                surfW = w;
+                surfH = h;
+                matchSurfaceToPreviewRatio();
             }
+        };
+        scannerSurface.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER
+        ));
+        scannerSurface.getHolder().addCallback(this);
 
-            // Set the config for barcode formats
-            for(ZBarcodeFormat format : getFormats()) {
-                scanner.setConfig(format.getId(), Config.ENABLE, 1);
-            }
+        // Add preview SurfaceView to the screen
+        FrameLayout scannerView = (FrameLayout) findViewById(getResourceId("id/csZbarScannerView"));
+        scannerView.addView(scannerSurface);
 
-            // Set content view
-            setContentView(getResourceId("layout/cszbarscanner"));
+        findViewById(getResourceId("id/csZbarScannerTitle")).bringToFront();
+        findViewById(getResourceId("id/csZbarScannerInstructions")).bringToFront();
+        findViewById(getResourceId("id/csZbarScannerSightContainer")).bringToFront();
+        findViewById(getResourceId("id/csZbarScannerSight")).bringToFront();
+        findViewById(getResourceId("id/csZbarSwitchModeButton")).bringToFront();
+        scannerView.requestLayout();
+        scannerView.invalidate();
 
-            // Update view with customisable strings
-            TextView view_textTitle = (TextView) findViewById(getResourceId("id/csZbarScannerTitle"));
-            TextView view_textInstructions = (TextView) findViewById(getResourceId("id/csZbarScannerInstructions"));
-            view_textTitle.setText(textTitle);
-            view_textInstructions.setText(textInstructions);
+        if(params.has("linearOnly")) {
+            inQrMode = !params.optBoolean("linearOnly", false);
+        } else {
+            getStoredQrMode();
+        }
 
-            // Draw/hide the sight
-            if(!drawSight) {
-                findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.INVISIBLE);
-            }
-
-            // Create preview SurfaceView
-            scannerSurface = new SurfaceView (this) {
-                @Override
-                public void onSizeChanged (int w, int h, int oldW, int oldH) {
-                    surfW = w;
-                    surfH = h;
-                    matchSurfaceToPreviewRatio();
-                }
-            };
-            scannerSurface.setLayoutParams(new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    Gravity.CENTER
-            ));
-            scannerSurface.getHolder().addCallback(this);
-
-            // Add preview SurfaceView to the screen
-            FrameLayout scannerView = (FrameLayout) findViewById(getResourceId("id/csZbarScannerView"));
-            scannerView.addView(scannerSurface);
-
-            findViewById(getResourceId("id/csZbarScannerTitle")).bringToFront();
-            findViewById(getResourceId("id/csZbarScannerInstructions")).bringToFront();
-            findViewById(getResourceId("id/csZbarScannerSightContainer")).bringToFront();
-            findViewById(getResourceId("id/csZbarScannerSight")).bringToFront();
-            scannerView.requestLayout();
-            scannerView.invalidate();
-
+        updateViewAndButton(false);
     }
+
+	private void getStoredQrMode() {
+        final SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        if(sharedPref.contains("timpex-zbar-inQrMode")) {
+            inQrMode = sharedPref.getBoolean("timpex-zbar-inQrMode", false);
+        } else {
+            inQrMode = true;
+        }
+	}
 
     @Override
     public void onResume ()
@@ -409,8 +420,9 @@ implements SurfaceHolder.Callback {
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
             Image barcode;
+            Log.i("timpex-zbar", inQrMode ? "QR mode" : "Barcode mode");
 
-            if(linearOnly) {
+            if(!inQrMode) {
                 barcode = new Image(size.width, 3, "Y800");
                 byte[] dataFrame = getSliceOfImage(data, size.width, size.height);
                 barcode.setData(dataFrame);
@@ -579,5 +591,31 @@ implements SurfaceHolder.Callback {
                 die("Could not start camera preview: " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        this.inQrMode = !this.inQrMode;
+        this.updateViewAndButton(true);
+    }
+
+    public void updateViewAndButton(boolean shouldUpdatePrefs) {
+        if(inQrMode) {
+            findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.INVISIBLE);
+            android.widget.Button button = (android.widget.Button) findViewById(getResourceId("id/csZbarSwitchModeButton"));
+            button.setText("Switch to Linear");
+            scanner.setConfig(0, Config.X_DENSITY, 3);
+            scanner.setConfig(0, Config.Y_DENSITY, 3);
+        } else {
+            findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.VISIBLE);
+            android.widget.Button button = (android.widget.Button) findViewById(getResourceId("id/csZbarSwitchModeButton"));
+            button.setText("Switch to Mixed");
+            scanner.setConfig(0, Config.X_DENSITY, 6);
+            scanner.setConfig(0, Config.Y_DENSITY, 1);
+        }
+        if(!shouldUpdatePrefs) return;
+
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        sharedPref.edit().putBoolean("timpex-zbar-inQrMode", inQrMode).apply();
     }
 }

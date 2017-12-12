@@ -9,5 +9,7 @@
 #import "ZBarReaderViewController.h"
 
 @interface AlmaZBarReaderViewController : ZBarReaderViewController
-@property BOOL linearOnly;
+@property BOOL inQrMode;
+
+- (void)updateScanCrop;
 @end

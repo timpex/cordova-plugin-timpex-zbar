@@ -20,12 +20,12 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="CsZBar">
-                <param name="android-package" value="org.cloudsky.cordovaPlugins.ZBar"/>
+                <param name="android-package" value="no.timpex.zbar.ZBar"/>
             </feature>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="application">
         <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale"
-                android:name="org.cloudsky.cordovaPlugins.ZBarScannerActivity"
+                android:name="no.timpex.zbar.ZBarScannerActivity"
                 android:screenOrientation="fullUser"
                 android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
         </config-file>
@@ -37,6 +37,7 @@
             <uses-permission android:name="android.permission.CAMERA" />
         </config-file>
         <config-file target="res/values/strings.xml" parent="/*">
+            <string name="csZbarSwitchMode">Switch to Barcode</string>
             <string name="csZbarScannerTitle">Scan QR Code</string>
             <string name="csZbarScannerInstructions">Please point your camera at the QR code.</string>
             <color name="csZbarScannerTextColor">#ffffff</color>
@@ -45,9 +46,9 @@
         </config-file>
         <framework src="com.android.support:support-v4:23.1.0" />
         <resource-file src="android/res/layout/cszbarscanner.xml" target="res/layout/cszbarscanner.xml" />
-        <source-file src="android/ZBarcodeFormat.java" target-dir="src/org/cloudsky/cordovaPlugins" />
-        <source-file src="android/ZBar.java" target-dir="src/org/cloudsky/cordovaPlugins" />
-        <source-file src="android/ZBarScannerActivity.java" target-dir="src/org/cloudsky/cordovaPlugins" />
+        <source-file src="android/ZBarcodeFormat.java" target-dir="src/no/timpex/zbar" />
+        <source-file src="android/ZBar.java" target-dir="src/no/timpex/zbar" />
+        <source-file src="android/ZBarScannerActivity.java" target-dir="src/no/timpex/zbar" />
         <source-file src="android/libs/zbar.jar" target-dir="libs" />
         <source-file src="android/libs/armeabi/libiconv.so" target-dir="libs/armeabi" />
         <source-file src="android/libs/armeabi/libzbarjni.so" target-dir="libs/armeabi" />

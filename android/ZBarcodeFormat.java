@@ -1,4 +1,4 @@
-package org.cloudsky.cordovaPlugins;
+package no.timpex.zbar;
 
 import net.sourceforge.zbar.Symbol;
 

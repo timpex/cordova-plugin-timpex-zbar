@@ -1,4 +1,4 @@
-package org.cloudsky.cordovaPlugins;
+package no.timpex.zbar;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -10,7 +10,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
 
-import org.cloudsky.cordovaPlugins.ZBarScannerActivity;
+import no.timpex.zbar.ZBarScannerActivity;
 
 public class ZBar extends CordovaPlugin {
 
