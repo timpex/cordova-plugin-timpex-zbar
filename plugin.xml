@@ -73,11 +73,6 @@
             </feature>
         </config-file>
 
-        <!-- Declare Camera Usage for iOS10+ -->
-        <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
-            <string>For Barcode Scanning</string>
-        </config-file>
-
         <framework src="AVFoundation.framework" />
         <framework src="CoreMedia.framework" />
         <framework src="CoreVideo.framework" />
