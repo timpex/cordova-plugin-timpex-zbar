@@ -436,6 +436,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
                 SymbolSet syms = scanner.getResults();
                 for (Symbol sym : syms) {
+                    if (sym.getQuality()<0)
+                        continue;
                     qrValue = sym.getData();
 
                     // Return 1st found QR code value to the calling Activity.
