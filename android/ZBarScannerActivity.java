@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.RuntimeException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import android.Manifest;
 import android.app.Activity;
@@ -122,7 +123,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case CAMERA_PERMISSION_REQUEST: {
-                if (grantResults.s > 0
+                if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     setUpCamera();
                 } else {
