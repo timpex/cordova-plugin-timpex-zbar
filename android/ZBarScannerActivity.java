@@ -79,6 +79,10 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     String flashMode;
     private boolean inQrMode;
 
+    // Validator arrays
+    private JSONArray includes;
+    private JSONArray ss;
+
     // For retrieving R.* resources, from the actual app package
     // (we can't use actual.application.package.R.* in our code as we
     // don't know the applciation package name when writing this plugin).
@@ -118,7 +122,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case CAMERA_PERMISSION_REQUEST: {
-                if (grantResults.length > 0
+                if (grantResults.s > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     setUpCamera();
                 } else {
@@ -145,7 +149,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         String textInstructions = params.optString("text_instructions");
         whichCamera = params.optString("camera");
         flashMode = params.optString("flash");
-        
+        includes = params.optJSONArray("includes");
+        lengths = params.optJSONArray("lengths");
+
         // Initiate instance variables
         autoFocusHandler = new Handler();
         scanner = new ImageScanner();
@@ -439,17 +445,32 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                     if (sym.getQuality()<0)
                         continue;
                     qrValue = sym.getData();
-
+                    if (!validateQrValue(qrValue))
+                        continue;
+                    
                     // Return 1st found QR code value to the calling Activity.
                     Intent result = new Intent ();
                     result.putExtra(EXTRA_QRVALUE, qrValue);
                     setResult(Activity.RESULT_OK, result);
+
                     finish();
                 }
 
             }
         }
     };
+
+    private boolean validateQrValue(String qrValue) {
+        for(int i=0; i<includes.length(); i++){
+            if (qrValue.contains(includes.getString(i))
+                return true;
+        }
+        for(int i=0; i<lengths.length(); i++){
+            if (lengths.getInt(i) == qrValue.length())
+                return true;
+        }
+        return false;
+    }
 
     private byte[] getSliceOfImage(byte[] data, int width, int height) {
         if(width < height) {

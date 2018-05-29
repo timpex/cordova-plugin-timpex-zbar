@@ -10,7 +10,7 @@ public class ZBarcodeFormat {
     private String mName;
 
     public static final ZBarcodeFormat NONE = new ZBarcodeFormat(Symbol.NONE, "NONE");
-    //public static final ZBarcodeFormat PARTIAL = new ZBarcodeFormat(Symbol.PARTIAL, "PARTIAL");
+    public static final ZBarcodeFormat PARTIAL = new ZBarcodeFormat(Symbol.PARTIAL, "PARTIAL");
     public static final ZBarcodeFormat EAN8 = new ZBarcodeFormat(Symbol.EAN8, "EAN8");
     public static final ZBarcodeFormat UPCE = new ZBarcodeFormat(Symbol.UPCE, "UPCE");
     public static final ZBarcodeFormat ISBN10 = new ZBarcodeFormat(Symbol.ISBN10, "ISBN10");
@@ -30,21 +30,21 @@ public class ZBarcodeFormat {
     public static final List<ZBarcodeFormat> ALL_FORMATS = new ArrayList<ZBarcodeFormat>();
 
     static {
-        //ALL_FORMATS.add(ZBarcodeFormat.PARTIAL);
-        //ALL_FORMATS.add(ZBarcodeFormat.EAN8);
-        //ALL_FORMATS.add(ZBarcodeFormat.UPCE);
-        //ALL_FORMATS.add(ZBarcodeFormat.ISBN10);
-        //ALL_FORMATS.add(ZBarcodeFormat.UPCA);
-        //ALL_FORMATS.add(ZBarcodeFormat.EAN13);
-        //ALL_FORMATS.add(ZBarcodeFormat.ISBN13);
-        //ALL_FORMATS.add(ZBarcodeFormat.I25);
-        //ALL_FORMATS.add(ZBarcodeFormat.DATABAR);
-        //ALL_FORMATS.add(ZBarcodeFormat.DATABAR_EXP);
-        //ALL_FORMATS.add(ZBarcodeFormat.CODABAR);
-        //ALL_FORMATS.add(ZBarcodeFormat.CODE39);
-        //ALL_FORMATS.add(ZBarcodeFormat.PDF417);
+        ALL_FORMATS.add(ZBarcodeFormat.PARTIAL);
+        ALL_FORMATS.add(ZBarcodeFormat.EAN8);
+        ALL_FORMATS.add(ZBarcodeFormat.UPCE);
+        ALL_FORMATS.add(ZBarcodeFormat.ISBN10);
+        ALL_FORMATS.add(ZBarcodeFormat.UPCA);
+        ALL_FORMATS.add(ZBarcodeFormat.EAN13);
+        ALL_FORMATS.add(ZBarcodeFormat.ISBN13);
+        ALL_FORMATS.add(ZBarcodeFormat.I25);
+        ALL_FORMATS.add(ZBarcodeFormat.DATABAR);
+        ALL_FORMATS.add(ZBarcodeFormat.DATABAR_EXP);
+        ALL_FORMATS.add(ZBarcodeFormat.CODABAR);
+        ALL_FORMATS.add(ZBarcodeFormat.CODE39);
+        ALL_FORMATS.add(ZBarcodeFormat.PDF417);
         ALL_FORMATS.add(ZBarcodeFormat.QRCODE);
-        //ALL_FORMATS.add(ZBarcodeFormat.CODE93);
+        ALL_FORMATS.add(ZBarcodeFormat.CODE93);
         ALL_FORMATS.add(ZBarcodeFormat.CODE128);
     }
 
