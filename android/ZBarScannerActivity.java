@@ -464,14 +464,18 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private boolean validateQrValue (String qrValue) {
         if (includes != null){
             for(int i=0; i<includes.length(); i++){
-                if (qrValue.contains(includes.getString(i)))
-                    return true;
+                try{
+                    if (qrValue.contains(includes.getString(i)))
+                        return true;
+                } catch (JSONException e) {}
            }
         }
         if (lengths != null){
             for(int i=0; i<lengths.length(); i++){
-                if (lengths.getInt(i) == qrValue.length())
-                    return true;
+                try{
+                    if (lengths.getInt(i) == qrValue.length())
+                        return true;
+                } catch (JSONException e) {}
             }
         }
         return false;
