@@ -150,9 +150,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         String textInstructions = params.optString("text_instructions");
         whichCamera = params.optString("camera");
         flashMode = params.optString("flash");
-        try { includes = params.optJSONArray("includes")}
-        catch (JSONException e){includes = new JSONArray();}
-        try { lengths = params.optJSONArray("lengths")}
+        try { includes = params.optJSONArray("includes"); }
+        catch (JSONException e){includes = new JSONArray(); }
+        try { lengths = params.optJSONArray("lengths"); }
         catch (JSONException e){lengths = new JSONArray();}
 
         // Initiate instance variables
