@@ -81,7 +81,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
     // Validator arrays
     private JSONArray includes;
-    private JSONArray ss;
+    private JSONArray lengths;
 
     // For retrieving R.* resources, from the actual app package
     // (we can't use actual.application.package.R.* in our code as we
@@ -460,7 +460,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         }
     };
 
-    private boolean validateQrValue(String qrValue) {
+    private boolean validateQrValue (String qrValue) {
         for(int i=0; i<includes.length(); i++){
             if (qrValue.contains(includes.getString(i))
                 return true;
