@@ -150,10 +150,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         String textInstructions = params.optString("text_instructions");
         whichCamera = params.optString("camera");
         flashMode = params.optString("flash");
-        try { includes = params.optJSONArray("includes"); }
-        catch (JSONException e){includes = new JSONArray(); }
-        try { lengths = params.optJSONArray("lengths"); }
-        catch (JSONException e){lengths = new JSONArray();}
+        includes = params.optJSONArray("includes");
+        lengths = params.optJSONArray("lengths");
 
         // Initiate instance variables
         autoFocusHandler = new Handler();
@@ -464,13 +462,17 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     };
 
     private boolean validateQrValue (String qrValue) {
-        for(int i=0; i<includes.length(); i++){
-            if (qrValue.contains(includes.getString(i)))
-                return true;
+        if (includes != null){
+            for(int i=0; i<includes.length(); i++){
+                if (qrValue.contains(includes.getString(i)))
+                    return true;
+           }
         }
-        for(int i=0; i<lengths.length(); i++){
-            if (lengths.getInt(i) == qrValue.length())
-                return true;
+        if (lengths != null){
+            for(int i=0; i<lengths.length(); i++){
+                if (lengths.getInt(i) == qrValue.length())
+                    return true;
+            }
         }
         return false;
     }
