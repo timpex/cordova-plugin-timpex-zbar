@@ -9,8 +9,8 @@ public class ZBarcodeFormat {
     private int mId;
     private String mName;
 
-    public static final ZBarcodeFormat NONE = new ZBarcodeFormat(Symbol.NONE, "NONE");
-    public static final ZBarcodeFormat PARTIAL = new ZBarcodeFormat(Symbol.PARTIAL, "PARTIAL");
+    //public static final ZBarcodeFormat NONE = new ZBarcodeFormat(Symbol.NONE, "NONE");
+    //public static final ZBarcodeFormat PARTIAL = new ZBarcodeFormat(Symbol.PARTIAL, "PARTIAL");
     public static final ZBarcodeFormat EAN8 = new ZBarcodeFormat(Symbol.EAN8, "EAN8");
     public static final ZBarcodeFormat UPCE = new ZBarcodeFormat(Symbol.UPCE, "UPCE");
     public static final ZBarcodeFormat ISBN10 = new ZBarcodeFormat(Symbol.ISBN10, "ISBN10");
