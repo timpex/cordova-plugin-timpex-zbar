@@ -150,8 +150,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         String textInstructions = params.optString("text_instructions");
         whichCamera = params.optString("camera");
         flashMode = params.optString("flash");
-        barcodeMayContain = params.optJSONArray("barcodeMayContain");
-        allowedLengths = params.optJSONArray("allowedLengths");
+        barcodeMayContain = params.optJSONArray("barcode_may_contain");
+        allowedLengths = params.optJSONArray("allowed_lengths");
 
         // Initiate instance variables
         autoFocusHandler = new Handler();

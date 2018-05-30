@@ -70,8 +70,8 @@
         self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeOn;
         
        
-        self.allowedLengths = [params objectForKey:@"allowedLengths"];
-        self.barcodeMayContain = [params objectForKey:@"barcodeMayContain"];
+        self.allowedLengths = [params objectForKey:@"allowed_lengths"];
+        self.barcodeMayContain = [params objectForKey:@"barcode_may_contain"];
         NSString *flash = [params objectForKey:@"flash"];
         
         if ([flash isEqualToString:@"on"]) {
