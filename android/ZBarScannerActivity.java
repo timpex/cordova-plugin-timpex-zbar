@@ -81,8 +81,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private boolean inQrMode;
 
     // Validator arrays
-    private JSONArray includes;
-    private JSONArray lengths;
+    private JSONArray allowedLengths;    
+    private JSONArray barcodeMayContain;
 
     // For retrieving R.* resources, from the actual app package
     // (we can't use actual.application.package.R.* in our code as we
@@ -150,8 +150,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         String textInstructions = params.optString("text_instructions");
         whichCamera = params.optString("camera");
         flashMode = params.optString("flash");
-        includes = params.optJSONArray("includes");
-        lengths = params.optJSONArray("lengths");
+        barcodeMayContain = params.optJSONArray("barcodeMayContain");
+        allowedLengths = params.optJSONArray("allowedLengths");
 
         // Initiate instance variables
         autoFocusHandler = new Handler();
@@ -443,12 +443,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
                 SymbolSet syms = scanner.getResults();
                 for (Symbol sym : syms) {
-                    if (sym.getQuality()<0)
-                        continue;
                     qrValue = sym.getData();
 
-                    // If no validator is true, 
-                    if (!validateQrValue(qrValue))
+                    if (!isValidBarcode(qrValue))
                         continue;
                     
                     // Return 1st found QR code value to the calling Activity.
@@ -463,16 +460,16 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         }
     };
 
-    private boolean validateQrValue(String qrValue) {
-        return validateQrByContent(qrValue) || validateQrByLength(qrValue);
+    private boolean isValidBarcode(String qrValue) {
+        return barcodeIsOfLength(qrValue) || barcodeContainsSubstring(qrValue);
     }
 
-    private boolean validateQrByLength(String qrValue) {
-        if (lengths == null)
+    private boolean barcodeIsOfLength(String qrValue) {
+        if (allowedLengths == null)
             return true;
-        for (int i = 0; i < lengths.length(); i++) {
+        for (int i = 0; i < allowedLengths.length(); i++) {
             try {
-                if (lengths.getInt(i) == qrValue.length())
+                if (allowedLengths.getInt(i) == qrValue.length())
                     return true;
             } catch (JSONException e) {
             }
@@ -481,12 +478,12 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     }
         
 
-    private boolean validateQrByContent(String qrValue) {
-        if (includes == null)
+    private boolean barcodeContainsSubstring(String qrValue) {
+        if (barcodeMayContain == null)
             return true;
-        for (int i = 0; i < includes.length(); i++) {
+        for (int i = 0; i < barcodeMayContain.length(); i++) {
             try {
-                if (qrValue.contains(includes.getString(i)))
+                if (qrValue.contains(barcodeMayContain.getString(i)))
                     return true;
             } catch (JSONException e) {
             }

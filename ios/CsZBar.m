@@ -10,7 +10,8 @@
 @property AlmaZBarReaderViewController *scanReader;
 @property (weak, nonatomic) IBOutlet UIView *sightLine;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *switchModeButton;
-
+@property NSArray<NSNumber*> *allowedLengths;
+@property NSArray<NSString*> *barcodeMayContain;
 @end
 
 #pragma mark - Synthesize
@@ -22,6 +23,9 @@
 @synthesize scanReader;
 @synthesize sightLine;
 @synthesize switchModeButton;
+@synthesize allowedLengths;
+@synthesize barcodeMayContain;
+
 
 #pragma mark - Cordova Plugin
 
@@ -64,7 +68,10 @@
             self.scanReader.cameraDevice = UIImagePickerControllerCameraDeviceFront;
         }
         self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeOn;
-
+        
+       
+        self.allowedLengths = [params objectForKey:@"allowedLengths"];
+        self.barcodeMayContain = [params objectForKey:@"barcodeMayContain"];
         NSString *flash = [params objectForKey:@"flash"];
         
         if ([flash isEqualToString:@"on"]) {
@@ -196,7 +203,16 @@
     id<NSFastEnumeration> results = [info objectForKey: ZBarReaderControllerResults];
     
     ZBarSymbol *symbol = nil;
-    for (symbol in results) break; // get the first result
+    BOOL isValid = NO;
+    for (symbol in results) {
+        if([self isValidBarcode:symbol.data]) {
+            isValid = YES;
+            break;
+        }
+    } // get the first result
+    if(!isValid) {
+        return;
+    }
     
     [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
         self.scanInProgress = NO;
@@ -204,6 +220,33 @@
                                 resultWithStatus: CDVCommandStatus_OK
                                 messageAsString: symbol.data]];
     }];
+}
+
+- (BOOL) isValidBarcode:(NSString*)barcodeCandidate {
+    return [self barcodeIsOfLength:barcodeCandidate] || [self barcodeContainsSubstring:barcodeCandidate];
+}
+
+- (BOOL) barcodeIsOfLength:(NSString*)candidate {
+    if(self.allowedLengths == nil) return YES;
+    if([self.allowedLengths count] == 0) return YES;
+
+    for (NSNumber *length in self.allowedLengths) {
+        if([length intValue] == [candidate length])
+            return YES;
+    }
+    return NO;
+}
+
+- (BOOL) barcodeContainsSubstring:(NSString*)candidate {
+    if(self.barcodeMayContain == nil) return YES;
+	if([self.barcodeMayContain count] == 0) return YES;    
+
+    for (NSString *contains in self.barcodeMayContain) {
+        NSRange range = [candidate rangeOfString:contains];
+        if(range.location != NSNotFound)
+            return YES;
+    }
+    return NO;
 }
 
 - (void) imagePickerControllerDidCancel:(UIImagePickerController*)picker {
