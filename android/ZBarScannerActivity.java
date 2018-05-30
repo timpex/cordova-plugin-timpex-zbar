@@ -446,6 +446,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                     if (sym.getQuality()<0)
                         continue;
                     qrValue = sym.getData();
+
+                    // If no validator is true, 
                     if (!validateQrValue(qrValue))
                         continue;
                     
@@ -461,21 +463,32 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         }
     };
 
-    private boolean validateQrValue (String qrValue) {
-        if (includes != null){
-            for(int i=0; i<includes.length(); i++){
-                try{
-                    if (qrValue.contains(includes.getString(i)))
-                        return true;
-                } catch (JSONException e) {}
-           }
+    private boolean validateQrValue(String qrValue) {
+        return validateQrByContent(qrValue) || validateQrByLength(qrValue);
+    }
+
+    private boolean validateQrByLength(String qrValue) {
+        if (lengths == null)
+            return true;
+        for (int i = 0; i < lengths.length(); i++) {
+            try {
+                if (lengths.getInt(i) == qrValue.length())
+                    return true;
+            } catch (JSONException e) {
+            }
         }
-        if (lengths != null){
-            for(int i=0; i<lengths.length(); i++){
-                try{
-                    if (lengths.getInt(i) == qrValue.length())
-                        return true;
-                } catch (JSONException e) {}
+        return false;
+    }
+        
+
+    private boolean validateQrByContent(String qrValue) {
+        if (includes == null)
+            return true;
+        for (int i = 0; i < includes.length(); i++) {
+            try {
+                if (qrValue.contains(includes.getString(i)))
+                    return true;
+            } catch (JSONException e) {
             }
         }
         return false;
