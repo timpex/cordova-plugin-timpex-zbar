@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.RuntimeException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import android.Manifest;
 import android.app.Activity;
@@ -79,6 +80,10 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     String flashMode;
     private boolean inQrMode;
 
+    // Validator arrays
+    private JSONArray allowedLengths;    
+    private JSONArray barcodeMayContain;
+
     // For retrieving R.* resources, from the actual app package
     // (we can't use actual.application.package.R.* in our code as we
     // don't know the applciation package name when writing this plugin).
@@ -145,7 +150,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         String textInstructions = params.optString("text_instructions");
         whichCamera = params.optString("camera");
         flashMode = params.optString("flash");
-        
+        barcodeMayContain = params.optJSONArray("barcode_may_contain");
+        allowedLengths = params.optJSONArray("allowed_lengths");
+
         // Initiate instance variables
         autoFocusHandler = new Handler();
         scanner = new ImageScanner();
@@ -443,16 +450,51 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                 for (Symbol sym : syms) {
                     qrValue = sym.getData();
 
+                    if (!isValidBarcode(qrValue))
+                        continue;
+                    
                     // Return 1st found QR code value to the calling Activity.
                     Intent result = new Intent ();
                     result.putExtra(EXTRA_QRVALUE, qrValue);
                     setResult(Activity.RESULT_OK, result);
+
                     finish();
                 }
 
             }
         }
     };
+
+    private boolean isValidBarcode(String qrValue) {
+        return barcodeIsOfLength(qrValue) || barcodeContainsSubstring(qrValue);
+    }
+
+    private boolean barcodeIsOfLength(String qrValue) {
+        if (allowedLengths == null)
+            return true;
+        for (int i = 0; i < allowedLengths.length(); i++) {
+            try {
+                if (allowedLengths.getInt(i) == qrValue.length())
+                    return true;
+            } catch (JSONException e) {
+            }
+        }
+        return false;
+    }
+        
+
+    private boolean barcodeContainsSubstring(String qrValue) {
+        if (barcodeMayContain == null)
+            return true;
+        for (int i = 0; i < barcodeMayContain.length(); i++) {
+            try {
+                if (qrValue.contains(barcodeMayContain.getString(i)))
+                    return true;
+            } catch (JSONException e) {
+            }
+        }
+        return false;
+    }
 
     private byte[] getSliceOfImage(byte[] data, int width, int height) {
         if(width < height) {
