@@ -426,7 +426,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private PreviewCallback previewCb = new PreviewCallback()
     {
         public void onPreviewFrame(byte[] data, Camera camera) {
-            this.framesScanned += 1;
+            framesScanned += 1;
             if(framesScanned <= 10)
                 return;
             Camera.Parameters parameters = camera.getParameters();
