@@ -6,6 +6,7 @@
 
 @interface CsZBar ()
 @property bool scanInProgress;
+@property int framesScanned;
 @property NSString *scanCallbackId;
 @property AlmaZBarReaderViewController *scanReader;
 @property (weak, nonatomic) IBOutlet UIView *sightLine;
@@ -18,6 +19,7 @@
 @implementation CsZBar
 
 @synthesize scanInProgress;
+@synthesize framesScanned;
 @synthesize scanCallbackId;
 @synthesize scanReader;
 @synthesize sightLine;
@@ -27,6 +29,7 @@
 
 - (void)pluginInitialize {
     self.scanInProgress = NO;
+    self.framesScanned = 0;
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
@@ -48,6 +51,7 @@
                             messageAsString:@"A scan is already in progress."]
          callbackId: [command callbackId]];
     } else {
+        self.framesScanned = 0;
         self.scanInProgress = YES;
         self.scanCallbackId = [command callbackId];
         self.scanReader = [AlmaZBarReaderViewController new];
@@ -192,6 +196,10 @@
     if ([self.scanReader isBeingDismissed]) {
         return;
     }
+
+    self.framesScanned += 1;
+    if(self.framesScanned <= 10)
+        return;
     
     id<NSFastEnumeration> results = [info objectForKey: ZBarReaderControllerResults];
     

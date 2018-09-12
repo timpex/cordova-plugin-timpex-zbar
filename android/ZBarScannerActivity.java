@@ -416,7 +416,11 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     // Receives frames from the camera and checks for barcodes.
     private PreviewCallback previewCb = new PreviewCallback()
     {
+        private int framesScanned = 0;
         public void onPreviewFrame(byte[] data, Camera camera) {
+            this.framesScanned += 1;
+            if(this.framesScanned <= 10)
+                return;
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
             Image barcode;
