@@ -79,6 +79,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     String whichCamera;
     String flashMode;
     private boolean inQrMode;
+    private int framesScanned = 0;
 
     // Validator arrays
     private JSONArray allowedLengths;    
@@ -102,7 +103,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     @Override
     public void onCreate (Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-        previewCb.framesScanned = 0;
+        this.framesScanned = 0;
         int permissionCheck = ContextCompat.checkSelfPermission(this.getBaseContext(), Manifest.permission.CAMERA);
 
         if(permissionCheck == PackageManager.PERMISSION_GRANTED){
@@ -226,7 +227,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     public void onResume ()
     {
         super.onResume();
-        previewCb.framesScanned = 0;
+        this.framesScanned = 0;
 
         try {
             if(whichCamera.equals("front")) {
@@ -424,10 +425,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     // Receives frames from the camera and checks for barcodes.
     private PreviewCallback previewCb = new PreviewCallback()
     {
-        public int framesScanned = 0;
         public void onPreviewFrame(byte[] data, Camera camera) {
             this.framesScanned += 1;
-            if(this.framesScanned <= 10)
+            if(framesScanned <= 10)
                 return;
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
