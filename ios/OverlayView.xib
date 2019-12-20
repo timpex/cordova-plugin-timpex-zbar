@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_5" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <development version="8000" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -31,6 +28,12 @@
                         <barButtonItem tag="1" title="Flash" id="YYh-4t-f5U">
                             <connections>
                                 <action selector="toggleFlashPressed:" destination="-1" id="8H3-WI-bP9"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Tp9-Jf-Plc"/>
+                        <barButtonItem tag="1" title="Done" id="aGe-nE-bKR">
+                            <connections>
+                                <action selector="donePressed:" destination="-1" id="NWh-Vo-Hwq"/>
                             </connections>
                         </barButtonItem>
                     </items>
@@ -78,6 +81,7 @@
                 <constraint firstItem="oR6-tU-ecW" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailing" id="vg8-KY-REn"/>
                 <constraint firstItem="oR6-tU-ecW" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="y9c-ez-0nr"/>
             </constraints>
+            <point key="canvasLocation" x="132" y="130"/>
         </view>
     </objects>
 </document>

@@ -12,6 +12,7 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *switchModeButton;
 @property NSArray<NSNumber*> *allowedLengths;
 @property NSArray<NSString*> *barcodeMayContain;
+@property bool multiscan;
 @end
 
 #pragma mark - Synthesize
@@ -25,7 +26,7 @@
 @synthesize switchModeButton;
 @synthesize allowedLengths;
 @synthesize barcodeMayContain;
-
+@synthesize multiscan;
 
 #pragma mark - Cordova Plugin
 
@@ -69,7 +70,7 @@
         }
         self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeOn;
         
-       
+        self.multiscan = [params objectForKey:@"multiscan"];
         self.allowedLengths = [params objectForKey:@"allowed_lengths"];
         self.barcodeMayContain = [params objectForKey:@"barcode_may_contain"];
         NSString *flash = [params objectForKey:@"flash"];
@@ -177,6 +178,15 @@
     [self toggleflash];
 }
 
+- (IBAction)donePressed:(id)sender {
+     [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
+           self.scanInProgress = NO;
+           [self sendScanResult: [CDVPluginResult
+                                  resultWithStatus: CDVCommandStatus_OK
+                                  messageAsString: @"done"]];
+       }];
+}
+
 - (IBAction)cancelPressed:(id)sender {
     [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
         self.scanInProgress = NO;
@@ -214,12 +224,15 @@
         return;
     }
     
-    [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
-        self.scanInProgress = NO;
-        [self sendScanResult: [CDVPluginResult
-                                resultWithStatus: CDVCommandStatus_OK
-                                messageAsString: symbol.data]];
-    }];
+    if(self.multiscan) {
+        [result setKeepCallbackAsBool:YES];
+        [self sendScanResult: result];
+    } else {
+        [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
+           self.scanInProgress = NO;
+           [self sendScanResult: result];
+        }];
+    }
 }
 
 - (BOOL) isValidBarcode:(NSString*)barcodeCandidate {
