@@ -224,6 +224,10 @@
         return;
     }
     
+    CDVPluginResult* result = [CDVPluginResult
+                               resultWithStatus: CDVCommandStatus_OK
+                               messageAsString: symbol.data];
+    
     if(self.multiscan) {
         [result setKeepCallbackAsBool:YES];
         [self sendScanResult: result];
