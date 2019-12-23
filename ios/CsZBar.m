@@ -10,9 +10,14 @@
 @property AlmaZBarReaderViewController *scanReader;
 @property (weak, nonatomic) IBOutlet UIView *sightLine;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *switchModeButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *flashButton;
 @property NSArray<NSNumber*> *allowedLengths;
 @property NSArray<NSString*> *barcodeMayContain;
+@property (weak, nonatomic) IBOutlet UIView *colorOverlay;
 @property bool multiscan;
+@property (weak, nonatomic) IBOutlet UILabel *labelItem3;
+@property (weak, nonatomic) IBOutlet UILabel *labelItem2;
+@property (weak, nonatomic) IBOutlet UILabel *labelItem1;
 @end
 
 #pragma mark - Synthesize
@@ -24,9 +29,15 @@
 @synthesize scanReader;
 @synthesize sightLine;
 @synthesize switchModeButton;
+@synthesize flashButton;
 @synthesize allowedLengths;
 @synthesize barcodeMayContain;
+@synthesize colorOverlay;
 @synthesize multiscan;
+@synthesize labelItem3;
+@synthesize labelItem2;
+@synthesize labelItem1;
+
 
 #pragma mark - Cordova Plugin
 
@@ -43,6 +54,27 @@
 }
 
 #pragma mark - Plugin API
+
+- (void)addValidItem: (CDVInvokedUrlCommand*)command; {
+    NSString *value = (NSString*) [command argumentAtIndex:0];
+    [self handleLabel2AndLabel3];
+    [labelItem1 setText:value];
+    [labelItem1 setTextColor:UIColor.whiteColor];
+}
+
+- (void)addInvalidItem: (CDVInvokedUrlCommand*)command; {
+    NSString *value = (NSString*) [command argumentAtIndex:0];
+    [self handleLabel2AndLabel3];
+    [labelItem1 setText:value];
+    [labelItem1 setTextColor:UIColor.redColor];
+}
+
+- (void)handleLabel2AndLabel3 {
+    [labelItem3 setText:labelItem2.text];
+    [labelItem3 setTextColor:labelItem2.textColor];
+    [labelItem2 setText:labelItem1.text];
+    [labelItem2 setTextColor:labelItem1.textColor];
+}
 
 - (void)scan: (CDVInvokedUrlCommand*)command; 
 {
@@ -82,7 +114,9 @@
         }else if ([flash isEqualToString:@"auto"]) {
             self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeAuto;
         }
-
+        
+        [self updateFlashButton];
+        
         // Hack to hide the bottom bar's Info button... originally based on http://stackoverflow.com/a/16353530
 #if __IPHONE_OS_VERSION_MAX_ALLOWED < 110000
 	NSInteger infoButtonIndex;
@@ -119,32 +153,81 @@
 
 - (void)toggleflash {
     AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    
     [device lockForConfiguration:nil];
     if (device.torchAvailable == 1) {
-        if (device.torchMode == 0) {
-            [device setTorchMode:AVCaptureTorchModeOn];
-            [device setFlashMode:AVCaptureFlashModeOn];
-        } else {
+        if (device.torchMode == AVCaptureTorchModeOn) {
             [device setTorchMode:AVCaptureTorchModeOff];
-            [device setFlashMode:AVCaptureFlashModeOff];
+        } else {
+            [device setTorchMode:AVCaptureTorchModeOn];
         }
     }
-    
+    [self updateFlashButton];
     [device unlockForConfiguration];
 }
 
 #pragma mark - Helpers
+- (void)fadeIn: (UIView*)view completion:(void(^)(BOOL))onComplete {
+    [UIView animateWithDuration:0.2f animations:^{
+        [view setAlpha:.8f];
+    } completion:onComplete];
+}
+
+- (void)fadeOut: (UIView*)view completion:(void(^)(BOOL))onComplete {
+    [UIView animateWithDuration:0.2f animations:^{
+        [view setAlpha:0];
+    } completion:onComplete];
+}
+
+- (void)flash: (UIView*)view completion:(void(^)(BOOL))onComplete {
+    [self fadeIn:view completion:^(BOOL finished) {
+        [self fadeOut:view completion:onComplete];
+    }];
+}
 
 - (void)sendScanResult: (CDVPluginResult*)result {
     [self.commandDelegate sendPluginResult: result callbackId: self.scanCallbackId];
 }
 
 - (void)updateModeButtonTitle {
-    if(self.scanReader.inQrMode)
-        [switchModeButton setTitle:@"Switch to Linear"];
-    else
-        [switchModeButton setTitle:@"Switch to Mixed"];
+    if(self.scanReader.inQrMode) {
+        if (@available(iOS 13.0, *)) {
+            [switchModeButton setImage:[UIImage systemImageNamed:@"qrcode"]];
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    else {
+        if (@available(iOS 13.0, *)) {
+            [switchModeButton setImage:[UIImage systemImageNamed:@"barcode"]];
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+}
+
+- (void)updateFlashButton {
+    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    if(device.torchMode == AVCaptureTorchModeOn) {
+        if (@available(iOS 13.0, *)) {
+            [flashButton setImage:[UIImage systemImageNamed:@"bolt.fill"]];
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    else if(device.torchMode == AVCaptureTorchModeOff){
+        if (@available(iOS 13.0, *)) {
+            [flashButton setImage:[UIImage systemImageNamed:@"bolt.slash.fill"]];
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    else if(device.torchMode == AVCaptureTorchModeAuto){
+        if (@available(iOS 13.0, *)) {
+            [flashButton setImage:[UIImage systemImageNamed:@"bolt.a.fill"]];
+        } else {
+            // Fallback on earlier versions
+        }
+    }
 }
 
 - (BOOL)getModeFromUserDefaults {
@@ -157,12 +240,12 @@
 
 - (void)setMode:(BOOL)inQrMode {
     self.scanReader.inQrMode = inQrMode;
+    [self updateModeButtonTitle];
     if(!self.scanReader.inQrMode) {
         [sightLine setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75f]];
-        [switchModeButton setTitle:@"Switch to Mixed"];
+        
     } else {
         [sightLine setBackgroundColor:[UIColor clearColor]];
-        [switchModeButton setTitle:@"Switch to Linear"];
     }
     [self.scanReader updateScanCrop];
     
@@ -227,14 +310,15 @@
     CDVPluginResult* result = [CDVPluginResult
                                resultWithStatus: CDVCommandStatus_OK
                                messageAsString: symbol.data];
-    
     if(self.multiscan) {
         [result setKeepCallbackAsBool:YES];
         [self sendScanResult: result];
+        [self flash:self->colorOverlay completion:nil];
+        
     } else {
         [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
-           self.scanInProgress = NO;
-           [self sendScanResult: result];
+            self.scanInProgress = NO;
+            [self sendScanResult: result];
         }];
     }
 }

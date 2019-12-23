@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_5" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+    <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <development version="8000" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CsZBar">
             <connections>
+                <outlet property="colorOverlay" destination="CCX-wg-YTj" id="iPU-H2-MBu"/>
+                <outlet property="flashButton" destination="YYh-4t-f5U" id="1jR-Dl-z1b"/>
+                <outlet property="labelItem1" destination="PJR-7X-FhN" id="f0D-7n-Qrf"/>
+                <outlet property="labelItem2" destination="d7v-0M-7VH" id="p2Z-1n-EnP"/>
+                <outlet property="labelItem3" destination="Kqv-mb-NeA" id="XZP-Ua-GwP"/>
                 <outlet property="sightLine" destination="hx8-9W-KBU" id="D4C-oX-GKz"/>
                 <outlet property="switchModeButton" destination="x0r-Y9-g1R" id="o4c-W2-r70"/>
             </connections>
@@ -28,13 +30,19 @@
                         <constraint firstAttribute="height" constant="44" id="emq-Dz-SiT"/>
                     </constraints>
                     <items>
-                        <barButtonItem tag="1" title="Flash" id="YYh-4t-f5U">
+                        <barButtonItem tag="1" image="bolt.slash.fill" catalog="system" style="plain" id="YYh-4t-f5U">
                             <connections>
                                 <action selector="toggleFlashPressed:" destination="-1" id="8H3-WI-bP9"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="Tp9-Jf-Plc"/>
-                        <barButtonItem tag="1" title="Done" id="aGe-nE-bKR">
+                        <barButtonItem title="Item" image="barcode" catalog="system" style="plain" id="x0r-Y9-g1R">
+                            <connections>
+                                <action selector="switchModePressed:" destination="-1" id="7wZ-Xo-fEa"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="bFg-SC-B3S"/>
+                        <barButtonItem tag="1" title="Done" image="xmark" catalog="system" style="done" id="aGe-nE-bKR">
                             <connections>
                                 <action selector="donePressed:" destination="-1" id="NWh-Vo-Hwq"/>
                             </connections>
@@ -51,26 +59,36 @@
                         <constraint firstAttribute="height" constant="1" id="jWY-Zk-GSa"/>
                     </constraints>
                 </view>
-                <toolbar autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="oR6-tU-ecW">
-                    <rect key="frame" x="0.0" y="692" width="414" height="44"/>
-                    <color key="backgroundColor" white="1" alpha="0.5" colorSpace="calibratedWhite"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="44" id="Q0n-YF-Xek"/>
-                    </constraints>
-                    <items>
-                        <barButtonItem title="Cancel" id="TG3-w1-GMV">
-                            <connections>
-                                <action selector="cancelPressed:" destination="-1" id="Ufm-C0-sj0"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="JTi-PY-dNH"/>
-                        <barButtonItem title="Switch to QR" id="x0r-Y9-g1R">
-                            <connections>
-                                <action selector="switchModePressed:" destination="-1" id="7wZ-Xo-fEa"/>
-                            </connections>
-                        </barButtonItem>
-                    </items>
-                </toolbar>
+                <view opaque="NO" alpha="0.0" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CCX-wg-YTj">
+                    <rect key="frame" x="0.0" y="44" width="414" height="648"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </view>
+                <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="mIl-nb-f6y">
+                    <rect key="frame" x="10" y="50" width="78" height="228"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" alpha="0.59999999999999998" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kqv-mb-NeA" userLabel="labelItem3">
+                            <rect key="frame" x="20" y="60" width="50" height="50"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d7v-0M-7VH">
+                            <rect key="frame" x="20" y="115" width="50" height="50"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PJR-7X-FhN">
+                            <rect key="frame" x="20" y="170" width="50" height="50"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="secondaryLabelColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                    <edgeInsets key="layoutMargins" top="60" left="20" bottom="8" right="8"/>
+                </stackView>
             </subviews>
             <constraints>
                 <constraint firstItem="hx8-9W-KBU" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="20" id="Pjh-bw-nC9"/>
@@ -78,12 +96,15 @@
                 <constraint firstItem="nCO-iZ-Wah" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="QtU-N1-RSg"/>
                 <constraint firstItem="hx8-9W-KBU" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="SGG-vc-cCf"/>
                 <constraint firstItem="nCO-iZ-Wah" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailing" id="XYY-ti-1oN"/>
-                <constraint firstItem="oR6-tU-ecW" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="bh7-e5-Odo"/>
                 <constraint firstAttribute="trailing" secondItem="hx8-9W-KBU" secondAttribute="trailing" constant="20" id="qRk-bn-Xh9"/>
                 <constraint firstItem="nCO-iZ-Wah" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="s6Y-9a-2gp"/>
-                <constraint firstItem="oR6-tU-ecW" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailing" id="vg8-KY-REn"/>
-                <constraint firstItem="oR6-tU-ecW" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="y9c-ez-0nr"/>
             </constraints>
+            <point key="canvasLocation" x="131.8840579710145" y="129.61956521739131"/>
         </view>
     </objects>
+    <resources>
+        <image name="barcode" catalog="system" width="64" height="46"/>
+        <image name="bolt.slash.fill" catalog="system" width="50" height="64"/>
+        <image name="xmark" catalog="system" width="64" height="56"/>
+    </resources>
 </document>

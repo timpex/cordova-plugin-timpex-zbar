@@ -16,7 +16,17 @@ ZBar.prototype = {
         if(params.flash != "on" && params.flash != "off") params.flash = "auto";
         if(params.multiscan === undefined) params.multiscan = false;
 
-        exec(success, failure, 'CsZBar', 'scan', [params]);
+        params.onScanned = params.onScanned || (() => true);
+        function onScanned(value) {
+            Promise.resolve(value).then(params.onScanned).then(() => {
+                exec(() => {}, () => {}, 'CsZbar', 'addValidItem', [value]);
+                success(value);
+            }, e => {
+                exec(() => {}, () => {}, 'CsZbar', 'addInvalidItem', [value]);
+            });
+        }
+               
+        exec(onScanned, failure, 'CsZBar', 'scan', [params]);
     },
 
 };
