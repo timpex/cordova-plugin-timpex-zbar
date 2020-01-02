@@ -111,14 +111,15 @@
         NSString *flash = [params objectForKey:@"flash"];
         
         if ([flash isEqualToString:@"on"]) {
+            [self setTorchMode:AVCaptureTorchModeOn];
             self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeOn;
         } else if ([flash isEqualToString:@"off"]) {
+            [self setTorchMode:AVCaptureTorchModeOff];
             self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeOff;
         }else if ([flash isEqualToString:@"auto"]) {
+            [self setTorchMode:AVCaptureTorchModeAuto];
             self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeAuto;
         }
-        
-        [self updateFlashButton];
         
         // Hack to hide the bottom bar's Info button... originally based on http://stackoverflow.com/a/16353530
 #if __IPHONE_OS_VERSION_MAX_ALLOWED < 110000
@@ -136,7 +137,7 @@
         } else {
             self.scanReader.inQrMode = [self getModeFromUserDefaults];
         }
-                
+        
         UIView *overlayView = [[[NSBundle mainBundle] loadNibNamed:@"OverlayView" owner:self options:nil] lastObject];
         [self updateModeButtonTitle];
         
@@ -246,6 +247,14 @@
         return [defaults boolForKey:@"timpex-zbar-inQrMode"];
     }
     return YES;
+}
+
+- (void)setTorchMode:(AVCaptureTorchMode)torchMode {
+    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    [device lockForConfiguration:nil];
+    [device setTorchMode:torchMode];
+    [self updateFlashButton];
+    [device unlockForConfiguration];
 }
 
 - (void)setMode:(BOOL)inQrMode {
