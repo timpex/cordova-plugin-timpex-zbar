@@ -105,7 +105,7 @@
         <header-file src="ios/ZBarSDK/zbar/Window.h" />
         <resource-file src="ios/OverlayView.xib" />
 
-        <resource-file src="ios/Images.xcassets" target="Images.xcassets"/>
+        <resource-file src="ios/Images.xcassets/*" target="Images.xcassets/"/>
 
         <!-- <resource-file src="ios/images/barcode.png" />
         <resource-file src="ios/images/barcode@2x.png" />
