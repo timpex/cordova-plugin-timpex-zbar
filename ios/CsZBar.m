@@ -11,6 +11,7 @@
 @property (weak, nonatomic) IBOutlet UIView *sightLine;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *switchModeButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *flashButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
 @property NSArray<NSNumber*> *allowedLengths;
 @property NSArray<NSString*> *barcodeMayContain;
 @property (weak, nonatomic) IBOutlet UIView *colorOverlay;
@@ -30,6 +31,7 @@
 @synthesize sightLine;
 @synthesize switchModeButton;
 @synthesize flashButton;
+@synthesize doneButton;
 @synthesize allowedLengths;
 @synthesize barcodeMayContain;
 @synthesize colorOverlay;
@@ -43,6 +45,7 @@
 
 - (void)pluginInitialize {
     self.scanInProgress = NO;
+    [self initDoneButton];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
@@ -133,7 +136,7 @@
         } else {
             self.scanReader.inQrMode = [self getModeFromUserDefaults];
         }
-        
+                
         UIView *overlayView = [[[NSBundle mainBundle] loadNibNamed:@"OverlayView" owner:self options:nil] lastObject];
         [self updateModeButtonTitle];
         
@@ -166,6 +169,13 @@
 }
 
 #pragma mark - Helpers
+- (void)initDoneButton {
+    if (@available(iOS 13.0, *)) {
+        [doneButton setImage:[UIImage systemImageNamed:@"xmark"]];
+    } else {
+        [doneButton setImage:[UIImage imageNamed:@"xmark"]];
+    }
+}
 - (void)fadeIn: (UIView*)view completion:(void(^)(BOOL))onComplete {
     [UIView animateWithDuration:0.2f animations:^{
         [view setAlpha:.8f];
@@ -193,14 +203,14 @@
         if (@available(iOS 13.0, *)) {
             [switchModeButton setImage:[UIImage systemImageNamed:@"qrcode"]];
         } else {
-            // Fallback on earlier versions
+            [switchModeButton setImage:[UIImage imageNamed:@"qrcode"]];
         }
     }
     else {
         if (@available(iOS 13.0, *)) {
             [switchModeButton setImage:[UIImage systemImageNamed:@"barcode"]];
         } else {
-            // Fallback on earlier versions
+            [switchModeButton setImage:[UIImage imageNamed:@"barcode"]];
         }
     }
 }
@@ -211,21 +221,21 @@
         if (@available(iOS 13.0, *)) {
             [flashButton setImage:[UIImage systemImageNamed:@"bolt.fill"]];
         } else {
-            // Fallback on earlier versions
+            [flashButton setImage:[UIImage imageNamed:@"bolt"]];
         }
     }
     else if(device.torchMode == AVCaptureTorchModeOff){
         if (@available(iOS 13.0, *)) {
             [flashButton setImage:[UIImage systemImageNamed:@"bolt.slash.fill"]];
         } else {
-            // Fallback on earlier versions
+            [flashButton setImage:[UIImage imageNamed:@"bolt.slash"]];
         }
     }
     else if(device.torchMode == AVCaptureTorchModeAuto){
         if (@available(iOS 13.0, *)) {
             [flashButton setImage:[UIImage systemImageNamed:@"bolt.a.fill"]];
         } else {
-            // Fallback on earlier versions
+            [flashButton setImage:[UIImage imageNamed:@"bolt.a"]];
         }
     }
 }
