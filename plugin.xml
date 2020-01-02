@@ -105,14 +105,7 @@
         <header-file src="ios/ZBarSDK/zbar/Window.h" />
         <resource-file src="ios/OverlayView.xib" />
 
-        <resource-file src="ios/Images.xcassets/barcode.imageset" target="Images.xcassets/barcode.imageset"/>
-        <resource-file src="ios/Images.xcassets/qrcode.imageset" target="Images.xcassets/qrcode.imageset"/>
-        <resource-file src="ios/Images.xcassets/bolt.imageset" target="Images.xcassets/bolt.imageset"/>
-        <resource-file src="ios/Images.xcassets/bolt.a.imageset" target="Images.xcassets/bolt.a.imageset"/>
-        <resource-file src="ios/Images.xcassets/bolt.slash.imageset" target="Images.xcassets/bolt.slash.imageset"/>
-        <resource-file src="ios/Images.xcassets/xmark.imageset" target="Images.xcassets/xmark.imageset"/>
-
-        <!-- <resource-file src="ios/images/barcode.png" />
+        <resource-file src="ios/images/barcode.png" />
         <resource-file src="ios/images/barcode@2x.png" />
         <resource-file src="ios/images/barcode@3x.png" />
         <resource-file src="ios/images/qrcode.png" />
@@ -129,7 +122,7 @@
         <resource-file src="ios/images/bolt.slash@3x.png" />
         <resource-file src="ios/images/xmark.png" />
         <resource-file src="ios/images/xmark@2x.png" />
-        <resource-file src="ios/images/xmark@3x.png" /> -->
+        <resource-file src="ios/images/xmark@3x.png" />
     </platform>
 
 </plugin>
