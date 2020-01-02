@@ -105,7 +105,9 @@
         <header-file src="ios/ZBarSDK/zbar/Window.h" />
         <resource-file src="ios/OverlayView.xib" />
 
-        <resource-file src="ios/images/barcode.png" />
+        <resource-file src="ios/Images.xcassets" target="Images.xcassets"/>
+
+        <!-- <resource-file src="ios/images/barcode.png" />
         <resource-file src="ios/images/barcode@2x.png" />
         <resource-file src="ios/images/barcode@3x.png" />
         <resource-file src="ios/images/qrcode.png" />
@@ -122,7 +124,7 @@
         <resource-file src="ios/images/bolt.slash@3x.png" />
         <resource-file src="ios/images/xmark.png" />
         <resource-file src="ios/images/xmark@2x.png" />
-        <resource-file src="ios/images/xmark@3x.png" />
+        <resource-file src="ios/images/xmark@3x.png" /> -->
     </platform>
 
 </plugin>
