@@ -38,8 +38,6 @@
         </config-file>
         <config-file target="res/values/strings.xml" parent="/*">
             <string name="csZbarSwitchMode">Switch to Barcode</string>
-            <string name="csZbarScannerTitle">Scan QR Code</string>
-            <string name="csZbarScannerInstructions">Please point your camera at the QR code.</string>
             <color name="csZbarScannerTextColor">#ffffff</color>
             <color name="csZbarScannerTextBackground">#88000000</color>
             <color name="csZbarScannerBackground">#000000</color>
@@ -58,12 +56,36 @@
         <source-file src="android/libs/arm64-v8a/libzbarjni.so" target-dir="libs/arm64-v8a" />s
         <source-file src="android/libs/x86/libiconv.so" target-dir="libs/x86" />
         <source-file src="android/libs/x86/libzbarjni.so" target-dir="libs/x86" />
+       
+        <resource-file src="android/res/drawable/badge.xml" target="res/drawable/badge.xml"/>
+
         <source-file src="android/res/drawable/camera_flash.png" target-dir="res/drawable"/>
         <source-file src="android/res/drawable/camera_flash.png" target-dir="res/drawable-hdpi"/>
         <source-file src="android/res/drawable/camera_flash.png" target-dir="res/drawable-ldpi"/>
         <source-file src="android/res/drawable/camera_flash.png" target-dir="res/drawable-mdpi"/>
         <source-file src="android/res/drawable/camera_flash.png" target-dir="res/drawable-xhdpi"/>
         <source-file src="android/res/drawable/camera_flash.png" target-dir="res/drawable-xxhdpi"/>
+        
+        <source-file src="android/res/drawable/xmark.png" target-dir="res/drawable"/>
+        <source-file src="android/res/drawable/xmark.png" target-dir="res/drawable-hdpi"/>
+        <source-file src="android/res/drawable/xmark.png" target-dir="res/drawable-ldpi"/>
+        <source-file src="android/res/drawable/xmark.png" target-dir="res/drawable-mdpi"/>
+        <source-file src="android/res/drawable/xmark.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="android/res/drawable/xmark.png" target-dir="res/drawable-xxhdpi"/>
+
+        <source-file src="android/res/drawable/qrcode.png" target-dir="res/drawable"/>
+        <source-file src="android/res/drawable/qrcode.png" target-dir="res/drawable-hdpi"/>
+        <source-file src="android/res/drawable/qrcode.png" target-dir="res/drawable-ldpi"/>
+        <source-file src="android/res/drawable/qrcode.png" target-dir="res/drawable-mdpi"/>
+        <source-file src="android/res/drawable/qrcode.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="android/res/drawable/qrcode.png" target-dir="res/drawable-xxhdpi"/>
+
+        <source-file src="android/res/drawable/barcode.png" target-dir="res/drawable"/>
+        <source-file src="android/res/drawable/barcode.png" target-dir="res/drawable-hdpi"/>
+        <source-file src="android/res/drawable/barcode.png" target-dir="res/drawable-ldpi"/>
+        <source-file src="android/res/drawable/barcode.png" target-dir="res/drawable-mdpi"/>
+        <source-file src="android/res/drawable/barcode.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="android/res/drawable/barcode.png" target-dir="res/drawable-xxhdpi"/>
     </platform>
 
     <platform name="ios">

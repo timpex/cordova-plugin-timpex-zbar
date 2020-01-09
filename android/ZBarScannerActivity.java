@@ -31,9 +31,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.Toast;
 import android.content.pm.PackageManager;
 import android.view.Surface;
 
@@ -64,7 +66,10 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
     public static final String EXTRA_QRVALUE = "qrValue";
     public static final String EXTRA_PARAMS = "params";
+    public static final String EXTRA_VALID_VALUE = "validValue";
+    public static final String EXTRA_INVALID_VALUE = "invalidValue";
     public static final int RESULT_ERROR = RESULT_FIRST_USER + 1;
+    public static final int RESULT_DONE = RESULT_ERROR + 1;
     private static final int CAMERA_PERMISSION_REQUEST = 1;
     // State -----------------------------------------------------------
 
@@ -74,11 +79,17 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private SurfaceHolder holder;
     private ImageScanner scanner;
     private int surfW, surfH;
+    private ArrayList<String> scannedValues = new ArrayList<String>();
+    private Toast toast = null;
+    private Handler delayHandler;
+    private boolean isScanBlocked = false;
+    private int validCounter = 0;
 
     // Customisable stuff
     String whichCamera;
     String flashMode;
     private boolean inQrMode;
+    private boolean multiscan;
 
     // Validator arrays
     private JSONArray allowedLengths;    
@@ -115,6 +126,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                     new String[]{Manifest.permission.CAMERA},
                     CAMERA_PERMISSION_REQUEST);
         }
+
+        ZBar.setActivity(this);
         super.onCreate(savedInstanceState);
 
 
@@ -140,22 +153,24 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private void setUpCamera() {
         // If request is cancelled, the result arrays are empty.
 
-        // Get parameters from JS
+        // Get parameters from JS 
         Intent startIntent = getIntent();
         String paramStr = startIntent.getStringExtra(EXTRA_PARAMS);
         JSONObject params;
         try { params = new JSONObject(paramStr); }
         catch (JSONException e) { params = new JSONObject(); }
-        String textTitle = params.optString("text_title");
-        String textInstructions = params.optString("text_instructions");
         whichCamera = params.optString("camera");
         flashMode = params.optString("flash");
         barcodeMayContain = params.optJSONArray("barcode_may_contain");
         allowedLengths = params.optJSONArray("allowed_lengths");
+        multiscan = params.optBoolean("multiscan", false);
 
         // Initiate instance variables
         autoFocusHandler = new Handler();
         scanner = new ImageScanner();
+        toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+        delayHandler = new Handler();
+
 
         // Set the config for barcode formats
         for(ZBarcodeFormat format : getFormats()) {
@@ -165,15 +180,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         // Set content view
         setContentView(getResourceId("layout/cszbarscanner"));
 
-        // Update view with customisable strings
-        TextView view_textTitle = (TextView) findViewById(getResourceId("id/csZbarScannerTitle"));
-        TextView view_textInstructions = (TextView) findViewById(getResourceId("id/csZbarScannerInstructions"));
-        view_textTitle.setText(textTitle);
-        view_textInstructions.setText(textInstructions);
-
         // Draw/hide the sight
         findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.INVISIBLE);
-        android.widget.Button switchModeButton = (android.widget.Button) findViewById(getResourceId("id/csZbarSwitchModeButton"));
+        android.widget.ImageButton switchModeButton = (android.widget.ImageButton) findViewById(getResourceId("id/csZbarSwitchModeButton"));
         switchModeButton.setOnClickListener(this);
 
         // Create preview SurfaceView
@@ -185,22 +194,25 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                 matchSurfaceToPreviewRatio();
             }
         };
-        scannerSurface.setLayoutParams(new FrameLayout.LayoutParams(
+        RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                Gravity.CENTER
-        ));
+                ViewGroup.LayoutParams.MATCH_PARENT
+        );
+        layout.addRule(RelativeLayout.CENTER_IN_PARENT);
+        scannerSurface.setLayoutParams(layout);
         scannerSurface.getHolder().addCallback(this);
 
         // Add preview SurfaceView to the screen
-        FrameLayout scannerView = (FrameLayout) findViewById(getResourceId("id/csZbarScannerView"));
+        RelativeLayout scannerView = (RelativeLayout) findViewById(getResourceId("id/csZbarScannerView"));
         scannerView.addView(scannerSurface);
 
-        findViewById(getResourceId("id/csZbarScannerTitle")).bringToFront();
-        findViewById(getResourceId("id/csZbarScannerInstructions")).bringToFront();
-        findViewById(getResourceId("id/csZbarScannerSightContainer")).bringToFront();
+        findViewById(getResourceId("id/doneButton")).bringToFront();
         findViewById(getResourceId("id/csZbarScannerSight")).bringToFront();
         findViewById(getResourceId("id/csZbarSwitchModeButton")).bringToFront();
+        findViewById(getResourceId("id/csZbarScannedItems")).bringToFront();
+        findViewById(getResourceId("id/csZbarToolbar")).bringToFront();
+        findViewById(getResourceId("id/csZbarValidCounter")).bringToFront();
+        findViewById(getResourceId("id/csZbarScannerOverlay")).bringToFront();
         scannerView.requestLayout();
         scannerView.invalidate();
 
@@ -375,7 +387,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         }
 
 		try {
-           // camera.setParameters(camParams);
             camera.setPreviewDisplay(holder);
             camera.setPreviewCallback(previewCb);
             camera.startPreview();
@@ -387,9 +398,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                     // on during autofocus.
                 camParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             }
-            //tryStopPreview();
-            //tryStartPreview();
-            //camParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+
             camera.setParameters(camParams);
         } catch(RuntimeException e) {
             Log.d("csZBar", (new StringBuilder("Unsupported camera parameter reported for flash mode: ")).append(flashMode).toString());
@@ -424,10 +433,10 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private PreviewCallback previewCb = new PreviewCallback()
     {
         public void onPreviewFrame(byte[] data, Camera camera) {
+            if(isScanBlocked) return;
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
             Image barcode;
-            Log.i("timpex-zbar", inQrMode ? "QR mode" : "Barcode mode");
 
             if(!inQrMode) {
                 barcode = new Image(size.width, 3, "Y800");
@@ -440,25 +449,50 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
             if (scanner.scanImage(barcode) != 0) {
                 String qrValue = "";
+                delay(500);
 
                 SymbolSet syms = scanner.getResults();
                 for (Symbol sym : syms) {
                     qrValue = sym.getData();
-
-                    if (!isValidBarcode(qrValue))
-                        continue;
                     
+                    if (!isValidBarcode(qrValue)) {
+                        toast.setText("QR/Barcode is invalid!");
+                        toast.show();
+                        continue;
+                    }
+
+                    if (scannedValues.contains(qrValue)) {
+                        toast.setText("QR/Barcode has already been scanned!");
+                        toast.show();
+                        continue;
+                    }
+
                     // Return 1st found QR code value to the calling Activity.
                     Intent result = new Intent ();
                     result.putExtra(EXTRA_QRVALUE, qrValue);
-                    setResult(Activity.RESULT_OK, result);
-
-                    finish();
+                    if(!multiscan) {
+                        setResult(Activity.RESULT_OK, result);
+                        finish();
+                    } else {
+                        toast.cancel();
+                        scannedValues.add(qrValue);
+                        ZBar.addResult(qrValue);
+                    }
                 }
 
             }
         }
     };
+
+    private void delay(int ms) {
+        isScanBlocked = true;
+        delayHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                isScanBlocked = false; 
+            }
+        }, ms);
+    }
 
     private boolean isValidBarcode(String qrValue) {
         return barcodeIsOfLength(qrValue) || barcodeContainsSubstring(qrValue);
@@ -541,20 +575,22 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         Camera.Size size = params.getPreviewSize();
         float previewRatio = (float) size.height / size.width; // swap h and w as the preview is rotated 90 degrees
         float surfaceRatio = (float) surfW / surfH;
+        RelativeLayout.LayoutParams layout;
 
         if(previewRatio > surfaceRatio) {
-            scannerSurface.setLayoutParams(new FrameLayout.LayoutParams(
+            layout = new RelativeLayout.LayoutParams(
                 surfW,
-                Math.round((float) surfW / previewRatio),
-                Gravity.CENTER
-            ));
-        } else if(previewRatio < surfaceRatio) {
-            scannerSurface.setLayoutParams(new FrameLayout.LayoutParams(
+                Math.round((float) surfW / previewRatio)
+            );
+        } else {
+            layout = new RelativeLayout.LayoutParams(
                 Math.round((float) surfH * previewRatio),
-                surfH,
-                Gravity.CENTER
-            ));
+                surfH
+            );
         }
+
+        layout.addRule(RelativeLayout.CENTER_IN_PARENT);
+        scannerSurface.setLayoutParams(layout);
     }
 
     // Stop the camera preview safely.
@@ -604,12 +640,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
                     break;
                 }
                 // 90 degrees rotation for Portrait orientation Activity.
-               // camera.setDisplayOrientation(rotation);
                 setCameraDisplayOrientation(this, 0);
 
                 android.hardware.Camera.Parameters camParams = camera.getParameters();
-
-                //camParams.setFlashMode(Parameters.FLASH_MODE_TORCH);
 
                 try {
                    camParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -644,14 +677,14 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     public void updateViewAndButton(boolean shouldUpdatePrefs) {
         if(inQrMode) {
             findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.INVISIBLE);
-            android.widget.Button button = (android.widget.Button) findViewById(getResourceId("id/csZbarSwitchModeButton"));
-            button.setText("Switch to Linear");
+            android.widget.ImageButton button = (android.widget.ImageButton) findViewById(getResourceId("id/csZbarSwitchModeButton"));
+            button.setImageResource(getResourceId("drawable/qrcode"));
             scanner.setConfig(0, Config.X_DENSITY, 3);
             scanner.setConfig(0, Config.Y_DENSITY, 3);
         } else {
             findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.VISIBLE);
-            android.widget.Button button = (android.widget.Button) findViewById(getResourceId("id/csZbarSwitchModeButton"));
-            button.setText("Switch to Mixed");
+            android.widget.ImageButton button = (android.widget.ImageButton) findViewById(getResourceId("id/csZbarSwitchModeButton"));
+            button.setImageResource(getResourceId("drawable/barcode"));
             scanner.setConfig(0, Config.X_DENSITY, 6);
             scanner.setConfig(0, Config.Y_DENSITY, 1);
         }
@@ -659,5 +692,80 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         sharedPref.edit().putBoolean("timpex-zbar-inQrMode", inQrMode).apply();
+    }
+
+    public void flashOverlayView(int color) {
+        View overlayView = findViewById(getResourceId("id/csZbarScannerOverlay"));      
+        overlayView.setBackgroundColor(color);
+        overlayView.setAlpha(0f);
+        overlayView.animate()
+        .alpha(0.8f)
+        .setDuration(200)
+        .setListener(null);
+
+        overlayView.setAlpha(0.8f);
+        overlayView.animate()
+        .alpha(0f)
+        .setDuration(200)
+        .setListener(null);
+    }
+
+    public void onDone(View view) {
+        setResult(RESULT_DONE);
+        finish();
+    }
+   
+    public void addValidValue(String value) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                incrementValidCounter();
+                flashOverlayView(0xFF00FF00);
+                addLabelValue(value, 0xFFFFFFFF);
+            }
+        });
+    }
+
+    public void addInvalidValue(String value) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                flashOverlayView(0xFFFF0000);
+                addLabelValue(value, 0xFFFF0000);
+            }
+        });
+    }
+
+    private void incrementValidCounter() {
+        TextView textView = (TextView) findViewById(getResourceId("id/csZbarValidCounter"));
+        validCounter += 1;
+        textView.setText(String.valueOf(validCounter));
+    }
+
+    private void addLabelValue(String value, int color) {
+        handleLabel2AndLabel3();
+        TextView label1 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel1"));
+        label1.setVisibility(View.VISIBLE);
+        label1.setText(value);
+        label1.setTextColor(color);
+    }
+
+    private void handleLabel2AndLabel3() {
+        TextView label1 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel1"));
+        TextView label2 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel2"));
+        TextView label3 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel3"));
+        label3.setText(label2.getText());
+        label3.setTextColor(label2.getTextColors());
+        label3.setVisibility(label2.getVisibility());
+        label2.setText(label1.getText());
+        label2.setTextColor(label1.getTextColors());
+        label2.setVisibility(label1.getVisibility());
+    }
+
+    @Override
+    public void finish() {
+        scannedValues = null;
+        validCounter = 0;
+        super.finish();
     }
 }

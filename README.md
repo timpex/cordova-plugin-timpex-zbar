@@ -24,11 +24,10 @@ Arguments:
 
     ```javascript
     {
-        text_title: "OPTIONAL Title Text - default = 'Scan QR Code'", // Android only
-        text_instructions: "OPTIONAL Instruction Text - default = 'Please point your camera at the QR code.'", // Android only
         camera: "front" || "back" // defaults to "back"
         flash: "on" || "off" || "auto" // defaults to "auto". See Quirks
         linearOnly: true || false // allow scanning of 2d codes. If linearOnly is true, a red line will show the active area of the camera. Not setting this will start the scanner in the last mode used.
+        multiscan: true || false // allowing to scan multiple times before exiting.
     }
     ```
 
