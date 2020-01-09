@@ -66,8 +66,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
     public static final String EXTRA_QRVALUE = "qrValue";
     public static final String EXTRA_PARAMS = "params";
-    public static final String EXTRA_VALID_VALUE = "validValue";
-    public static final String EXTRA_INVALID_VALUE = "invalidValue";
     public static final int RESULT_ERROR = RESULT_FIRST_USER + 1;
     public static final int RESULT_DONE = RESULT_ERROR + 1;
     private static final int CAMERA_PERMISSION_REQUEST = 1;
