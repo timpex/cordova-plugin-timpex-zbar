@@ -53,29 +53,30 @@
     <TextView android:id="@+id/csZbarValidCounter"
         android:layout_below="@+id/csZbarToolbar"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:minEms="2"
         android:gravity="center"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="18dp"
         android:text="0"
         android:textSize="7pt"
         android:background="@drawable/badge"
         android:textColor="#FFFFFF"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="10dp"
         />
 
     <!-- Scanned Items: Shows the three last scanned qr-/barcodes -->
     <LinearLayout android:id="@+id/csZbarScannedItems"
-        android:layout_below="@+id/csZbarValidCounter"
-        android:layout_width="match_parent"
+        android:layout_below="@+id/csZbarToolbar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
-        android:orientation="vertical">       
+        android:orientation="vertical"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp">
         <TextView android:id="@+id/csZbarScannerLabel3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:alpha=".6"
             android:textSize="6pt"
             android:visibility="gone"
@@ -96,7 +97,7 @@
             android:visibility="gone"
             />
     </LinearLayout>
-    
+
     <!-- Scanner Sight: Red barcode-sight only shown in linear-mode -->
     <View android:id="@+id/csZbarScannerSight"
         android:layout_width="match_parent"
