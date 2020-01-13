@@ -19,6 +19,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *labelItem3;
 @property (weak, nonatomic) IBOutlet UILabel *labelItem2;
 @property (weak, nonatomic) IBOutlet UILabel *labelItem1;
+@property (weak, nonatomic) IBOutlet UIView *toastContainer;
+@property (weak, nonatomic) IBOutlet UILabel *toastLabel;
+@property NSMutableArray<NSString*> *scannedValues;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
 @end
 
 #pragma mark - Synthesize
@@ -39,7 +43,10 @@
 @synthesize labelItem3;
 @synthesize labelItem2;
 @synthesize labelItem1;
-
+@synthesize toastContainer;
+@synthesize toastLabel;
+@synthesize scannedValues;
+@synthesize countLabel;
 
 #pragma mark - Cordova Plugin
 
@@ -63,6 +70,7 @@
     [self handleLabel2AndLabel3];
     [labelItem1 setText:value];
     [labelItem1 setTextColor:UIColor.whiteColor];
+    [self incrementValidCount];
 }
 
 - (void)addInvalidItem: (CDVInvokedUrlCommand*)command; {
@@ -94,7 +102,7 @@
 
         self.scanReader.readerDelegate = self;
         self.scanReader.supportedOrientationsMask = ZBarOrientationMask(UIInterfaceOrientationPortrait);
-
+        self.scannedValues = [NSMutableArray array];
         // Get user parameters
         NSDictionary *params = (NSDictionary*) [command argumentAtIndex:0];
         NSString *camera = [params objectForKey:@"camera"];
@@ -183,15 +191,19 @@
     } completion:onComplete];
 }
 
-- (void)fadeOut: (UIView*)view completion:(void(^)(BOOL))onComplete {
-    [UIView animateWithDuration:0.2f animations:^{
-        [view setAlpha:0];
-    } completion:onComplete];
+- (void)fadeOut: (UIView*)view completion:(void(^)(BOOL))onComplete delay:(NSTimeInterval)ms {
+    [UIView animateWithDuration:0.2f
+                          delay:ms
+                        options:UIViewAnimationOptionTransitionCrossDissolve
+                     animations:^{
+                            [view setAlpha:0];
+                        }
+                     completion:onComplete];
 }
 
-- (void)flash: (UIView*)view completion:(void(^)(BOOL))onComplete {
+- (void)flash: (UIView*)view completion:(void(^)(BOOL))onComplete delay:(NSTimeInterval)ms {
     [self fadeIn:view completion:^(BOOL finished) {
-        [self fadeOut:view completion:onComplete];
+        [self fadeOut:view completion:onComplete delay:ms];
     }];
 }
 
@@ -274,6 +286,24 @@
     [defaults synchronize];
 }
 
+- (void)showToast:(NSString*)toastMsg {
+    [toastLabel setText:toastMsg];
+    [self flash:self->toastContainer
+     completion:nil
+          delay:2
+     ];
+}
+
+- (void)hideToast {
+    [toastContainer setAlpha:0.0f];
+}
+
+- (void)incrementValidCount {
+    int currentCount = countLabel.text.intValue;
+    currentCount += 1;
+    [countLabel setText: [@(currentCount) stringValue]];
+}
+
 #pragma mark - Button callbacks
 
 - (IBAction)toggleFlashPressed:(id)sender {
@@ -283,9 +313,7 @@
 - (IBAction)donePressed:(id)sender {
      [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
            self.scanInProgress = NO;
-           [self sendScanResult: [CDVPluginResult
-                                  resultWithStatus: CDVCommandStatus_OK
-                                  messageAsString: @"done"]];
+           [self sendScanResult: [CDVPluginResult resultWithStatus: CDVCommandStatus_NO_RESULT]];
        }];
 }
 
@@ -316,15 +344,27 @@
     
     ZBarSymbol *symbol = nil;
     BOOL isValid = NO;
+    BOOL isAlreadyScanned = NO;
     for (symbol in results) {
-        if([self isValidBarcode:symbol.data]) {
+        if([scannedValues indexOfObject:symbol.data] != NSNotFound) {
+            isAlreadyScanned = YES;
+        } else if ([self isValidBarcode:symbol.data]) {
             isValid = YES;
+            isAlreadyScanned = NO;
             break;
         }
     } // get the first result
-    if(!isValid) {
+    if(!isValid && !isAlreadyScanned) {
+        [self showToast:@"QR/Barcode is not valid"];
         return;
     }
+    
+    if(isAlreadyScanned) {
+        [self showToast:@"QR/Barcode has already been scanned!"];
+        return;
+    }
+    
+    [self hideToast];
     
     CDVPluginResult* result = [CDVPluginResult
                                resultWithStatus: CDVCommandStatus_OK
@@ -332,11 +372,13 @@
     if(self.multiscan) {
         [result setKeepCallbackAsBool:YES];
         [self sendScanResult: result];
-        [self flash:self->colorOverlay completion:nil];
+        [self flash:self->colorOverlay completion:nil delay:0.0f];
+        [scannedValues addObject:symbol.data];
         
     } else {
         [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
             self.scanInProgress = NO;
+            [result setKeepCallbackAsBool:NO];
             [self sendScanResult: result];
         }];
     }

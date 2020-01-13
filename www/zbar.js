@@ -17,7 +17,10 @@ ZBar.prototype = {
         params.onScanned = params.onScanned || (() => true);
         function onScanned(value) {
             Promise.resolve(value).then(params.onScanned).then(() => {
-                exec(() => {}, () => {}, 'CsZBar', 'addValidItem', [value]);
+                if(params.multiscan) {
+                    exec(() => {}, () => {}, 'CsZBar', 'addValidItem', [value]);
+                }
+                
                 success(value);
             }, e => {
                 exec(() => {}, () => {}, 'CsZBar', 'addInvalidItem', [value]);
