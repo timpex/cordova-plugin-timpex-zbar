@@ -56,7 +56,7 @@
                     </connections>
                 </toolbar>
                 <view tag="100" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hx8-9W-KBU">
-                    <rect key="frame" x="10" y="333" width="345" height="1"/>
+                    <rect key="frame" x="10" y="333" width="355" height="1"/>
                     <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="0.75352112680000005" colorSpace="calibratedRGB"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="1" id="jWY-Zk-GSa"/>
@@ -77,9 +77,9 @@
                     </subviews>
                     <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
                     <constraints>
-                        <constraint firstAttribute="trailing" secondItem="oii-9V-E86" secondAttribute="trailing" constant="10" id="Im8-YO-iZa"/>
+                        <constraint firstAttribute="right" secondItem="oii-9V-E86" secondAttribute="right" constant="10" id="Im8-YO-iZa"/>
                         <constraint firstItem="oii-9V-E86" firstAttribute="centerY" secondItem="0qA-Yo-ajq" secondAttribute="centerY" id="Ygb-Nf-ohK"/>
-                        <constraint firstItem="oii-9V-E86" firstAttribute="leading" secondItem="0qA-Yo-ajq" secondAttribute="leading" constant="10" id="mha-53-EiA"/>
+                        <constraint firstItem="oii-9V-E86" firstAttribute="left" secondItem="0qA-Yo-ajq" secondAttribute="left" constant="10" id="mha-53-EiA"/>
                         <constraint firstItem="oii-9V-E86" firstAttribute="top" secondItem="0qA-Yo-ajq" secondAttribute="top" constant="9" id="zuy-FQ-wAr"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
@@ -104,9 +104,8 @@
                         <constraint firstAttribute="bottom" secondItem="vgX-df-xwy" secondAttribute="bottom" id="DZU-4d-Lrs"/>
                         <constraint firstItem="vgX-df-xwy" firstAttribute="left" secondItem="Z0D-vD-OfU" secondAttribute="left" constant="10" id="H1J-ta-QoW"/>
                         <constraint firstItem="vgX-df-xwy" firstAttribute="centerY" secondItem="Z0D-vD-OfU" secondAttribute="centerY" id="P1f-WX-uiW"/>
-                        <constraint firstAttribute="right" secondItem="vgX-df-xwy" secondAttribute="right" constant="10" id="o9f-Z3-qTp"/>
+                        <constraint firstItem="vgX-df-xwy" firstAttribute="right" secondItem="Z0D-vD-OfU" secondAttribute="right" constant="-10" id="o9f-Z3-qTp"/>
                         <constraint firstAttribute="top" secondItem="vgX-df-xwy" secondAttribute="top" id="r5s-z1-Zv6"/>
-                        <constraint firstItem="vgX-df-xwy" firstAttribute="centerX" secondItem="Z0D-vD-OfU" secondAttribute="centerX" id="vpm-NP-juB"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -151,7 +150,6 @@
                 <constraint firstItem="CCX-wg-YTj" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="8NH-Qp-oUa"/>
                 <constraint firstItem="mIl-nb-f6y" firstAttribute="top" secondItem="nCO-iZ-Wah" secondAttribute="bottom" constant="10" id="B2A-vJ-uOR"/>
                 <constraint firstItem="hx8-9W-KBU" firstAttribute="left" secondItem="iN0-l3-epB" secondAttribute="left" constant="10" id="Pjh-bw-nC9"/>
-                <constraint firstItem="hx8-9W-KBU" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="QDE-Ov-SB1"/>
                 <constraint firstItem="nCO-iZ-Wah" firstAttribute="left" secondItem="iN0-l3-epB" secondAttribute="left" id="QtU-N1-RSg"/>
                 <constraint firstItem="Z0D-vD-OfU" firstAttribute="top" secondItem="nCO-iZ-Wah" secondAttribute="bottom" constant="10" id="Rac-Q0-uZC"/>
                 <constraint firstItem="hx8-9W-KBU" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="SGG-vc-cCf"/>
@@ -159,7 +157,7 @@
                 <constraint firstItem="nCO-iZ-Wah" firstAttribute="right" secondItem="iN0-l3-epB" secondAttribute="right" id="XYY-ti-1oN"/>
                 <constraint firstItem="CCX-wg-YTj" firstAttribute="left" secondItem="iN0-l3-epB" secondAttribute="left" id="dLv-bk-5lC"/>
                 <constraint firstItem="mIl-nb-f6y" firstAttribute="right" relation="lessThanOrEqual" secondItem="Z0D-vD-OfU" secondAttribute="left" constant="5" id="hr2-61-vVG"/>
-                <constraint firstItem="hx8-9W-KBU" firstAttribute="right" secondItem="iN0-l3-epB" secondAttribute="right" constant="-20" id="qRk-bn-Xh9"/>
+                <constraint firstItem="hx8-9W-KBU" firstAttribute="right" secondItem="iN0-l3-epB" secondAttribute="right" constant="-10" id="qRk-bn-Xh9"/>
                 <constraint firstItem="0qA-Yo-ajq" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="rRH-az-JBK"/>
                 <constraint firstItem="nCO-iZ-Wah" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="s6Y-9a-2gp"/>
             </constraints>
