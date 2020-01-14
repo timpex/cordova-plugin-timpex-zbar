@@ -113,7 +113,7 @@
         }
         self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeOn;
         
-        self.multiscan = [params objectForKey:@"multiscan"];
+        self.multiscan = [[params objectForKey:@"multiscan"] boolValue];
         self.allowedLengths = [params objectForKey:@"allowed_lengths"];
         self.barcodeMayContain = [params objectForKey:@"barcode_may_contain"];
         NSString *flash = [params objectForKey:@"flash"];
