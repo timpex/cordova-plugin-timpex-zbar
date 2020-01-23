@@ -1,5 +1,6 @@
 #import "CsZBar.h"
 #import <AVFoundation/AVFoundation.h>
+#import <UIKit/UINotificationFeedbackGenerator.h>
 #import "AlmaZBarReaderViewController.h"
 
 #pragma mark - State
@@ -67,6 +68,7 @@
 
 - (void)addValidItem: (CDVInvokedUrlCommand*)command; {
     NSString *value = (NSString*) [command argumentAtIndex:0];
+    [self successFeedback];
     [self handleLabel2AndLabel3];
     [labelItem1 setText:value];
     [labelItem1 setTextColor:UIColor.whiteColor];
@@ -75,6 +77,7 @@
 
 - (void)addInvalidItem: (CDVInvokedUrlCommand*)command; {
     NSString *value = (NSString*) [command argumentAtIndex:0];
+    [self errorFeedback];
     [self handleLabel2AndLabel3];
     [labelItem1 setText:value];
     [labelItem1 setTextColor:UIColor.redColor];
@@ -178,6 +181,23 @@
 }
 
 #pragma mark - Helpers
+
+- (void)successFeedback {
+    [self->colorOverlay setBackgroundColor:UIColor.greenColor];
+    [self flash:self->colorOverlay completion:nil delay:0.0f];
+    UINotificationFeedbackGenerator *myGen = [[UINotificationFeedbackGenerator alloc] init];
+    [myGen notificationOccurred:UINotificationFeedbackTypeSuccess];
+    myGen = NULL;
+}
+
+- (void)errorFeedback {
+    [self->colorOverlay setBackgroundColor:UIColor.redColor];
+    [self flash:self->colorOverlay completion:nil delay:0.0f];
+    UINotificationFeedbackGenerator *myGen = [[UINotificationFeedbackGenerator alloc] init];
+    [myGen notificationOccurred:UINotificationFeedbackTypeError];
+    myGen = NULL;
+}
+
 - (void)initDoneButton {
     if (@available(iOS 13.0, *)) {
         [doneButton setImage:[UIImage systemImageNamed:@"xmark"]];
@@ -361,6 +381,9 @@
     
     if(isAlreadyScanned) {
         [self showToast:@"QR/Barcode has already been scanned!"];
+        UINotificationFeedbackGenerator *myGen = [[UINotificationFeedbackGenerator alloc] init];
+        [myGen notificationOccurred:UINotificationFeedbackTypeWarning];
+        myGen = NULL;
         return;
     }
     
@@ -372,7 +395,6 @@
     if(self.multiscan) {
         [result setKeepCallbackAsBool:YES];
         [self sendScanResult: result];
-        [self flash:self->colorOverlay completion:nil delay:0.0f];
         [scannedValues addObject:symbol.data];
         
     } else {
