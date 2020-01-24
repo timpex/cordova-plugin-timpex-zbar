@@ -1,56 +1,50 @@
 package no.timpex.zbar;
 
-import java.io.IOException;
-import java.lang.RuntimeException;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
-
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog.Builder;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.AutoFocusCallback;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
-import android.content.pm.PackageManager;
-import android.view.Surface;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
-
-import net.sourceforge.zbar.ImageScanner;
+import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
+import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
-import net.sourceforge.zbar.Config;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import static no.timpex.zbar.ZBarScannerActivity.VibrationPattern.*;
 
 public class ZBarScannerActivity extends Activity
 implements SurfaceHolder.Callback, View.OnClickListener {
@@ -461,6 +455,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
                     if (scannedValues.contains(qrValue)) {
                         toast.setText("QR/Barcode has already been scanned!");
+                        vibrate(SUCCESS);
                         toast.show();
                         continue;
                     }
@@ -714,44 +709,58 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     }
    
     public void addValidValue(String value) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                incrementValidCounter();
-                flashOverlayView(0xFF00FF00);
-                addLabelValue(value, 0xFFFFFFFF);
-            }
+        vibrate(SUCCESS);
+        runOnUiThread(() -> {
+            incrementValidCounter();
+            flashOverlayView(0xFF00FF00);
+            addLabelValue(value, 0xFFFFFFFF);
         });
     }
 
     public void addInvalidValue(String value) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                flashOverlayView(0xFFFF0000);
-                addLabelValue(value, 0xFFFF0000);
-            }
+        vibrate(ERROR);
+        runOnUiThread(() -> {
+            flashOverlayView(0xFFFF0000);
+            addLabelValue(value, 0xFFFF0000);
         });
     }
 
+    enum VibrationPattern {
+        SUCCESS,
+        ERROR,
+    }
+
+    private void vibrate(VibrationPattern vibrationPattern) {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        switch(vibrationPattern) {
+            case ERROR:
+                v.vibrate(new long[] {0,50,100,50,100,50},-1);
+                break;
+            case SUCCESS:
+            default:
+                v.vibrate(new long[] {0,50,100,50},-1);
+                break;
+        }
+    }
+
     private void incrementValidCounter() {
-        TextView textView = (TextView) findViewById(getResourceId("id/csZbarValidCounter"));
+        TextView textView = findViewById(getResourceId("id/csZbarValidCounter"));
         validCounter += 1;
         textView.setText(String.valueOf(validCounter));
     }
 
     private void addLabelValue(String value, int color) {
         handleLabel2AndLabel3();
-        TextView label1 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel1"));
+        TextView label1 = findViewById(getResourceId("id/csZbarScannerLabel1"));
         label1.setVisibility(View.VISIBLE);
         label1.setText(value);
         label1.setTextColor(color);
     }
 
     private void handleLabel2AndLabel3() {
-        TextView label1 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel1"));
-        TextView label2 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel2"));
-        TextView label3 = (TextView) findViewById(getResourceId("id/csZbarScannerLabel3"));
+        TextView label1 = findViewById(getResourceId("id/csZbarScannerLabel1"));
+        TextView label2 = findViewById(getResourceId("id/csZbarScannerLabel2"));
+        TextView label3 = findViewById(getResourceId("id/csZbarScannerLabel3"));
         label3.setText(label2.getText());
         label3.setTextColor(label2.getTextColors());
         label3.setVisibility(label2.getVisibility());
