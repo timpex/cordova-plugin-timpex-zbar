@@ -199,11 +199,11 @@
 }
 
 - (void)initDoneButton {
-    if (@available(iOS 13.0, *)) {
-        [doneButton setImage:[UIImage systemImageNamed:@"xmark"]];
-    } else {
+    // if (@available(iOS 13.0, *)) {
+    //     [doneButton setImage:[UIImage systemImageNamed:@"xmark"]];
+    // } else {
         [doneButton setImage:[UIImage imageNamed:@"xmark"]];
-    }
+    // }
 }
 - (void)fadeIn: (UIView*)view completion:(void(^)(BOOL))onComplete {
     [UIView animateWithDuration:0.2f animations:^{
@@ -233,43 +233,43 @@
 
 - (void)updateModeButtonTitle {
     if(self.scanReader.inQrMode) {
-        if (@available(iOS 13.0, *)) {
-            [switchModeButton setImage:[UIImage systemImageNamed:@"qrcode"]];
-        } else {
+        // if (@available(iOS 13.0, *)) {
+        //     [switchModeButton setImage:[UIImage systemImageNamed:@"qrcode"]];
+        // } else {
             [switchModeButton setImage:[UIImage imageNamed:@"qrcode"]];
-        }
+        // }
     }
     else {
-        if (@available(iOS 13.0, *)) {
-            [switchModeButton setImage:[UIImage systemImageNamed:@"barcode"]];
-        } else {
+        // if (@available(iOS 13.0, *)) {
+        //     [switchModeButton setImage:[UIImage systemImageNamed:@"barcode"]];
+        // } else {
             [switchModeButton setImage:[UIImage imageNamed:@"barcode"]];
-        }
+        // }
     }
 }
 
 - (void)updateFlashButton {
     AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     if(device.torchMode == AVCaptureTorchModeOn) {
-        if (@available(iOS 13.0, *)) {
-            [flashButton setImage:[UIImage systemImageNamed:@"bolt.fill"]];
-        } else {
+        // if (@available(iOS 13.0, *)) {
+        //     [flashButton setImage:[UIImage systemImageNamed:@"bolt.fill"]];
+        // } else {
             [flashButton setImage:[UIImage imageNamed:@"bolt"]];
-        }
+        // }
     }
     else if(device.torchMode == AVCaptureTorchModeOff){
-        if (@available(iOS 13.0, *)) {
-            [flashButton setImage:[UIImage systemImageNamed:@"bolt.slash.fill"]];
-        } else {
+        // if (@available(iOS 13.0, *)) {
+        //     [flashButton setImage:[UIImage systemImageNamed:@"bolt.slash.fill"]];
+        // } else {
             [flashButton setImage:[UIImage imageNamed:@"bolt.slash"]];
-        }
+        // }
     }
     else if(device.torchMode == AVCaptureTorchModeAuto){
-        if (@available(iOS 13.0, *)) {
-            [flashButton setImage:[UIImage systemImageNamed:@"bolt.a.fill"]];
-        } else {
+        // if (@available(iOS 13.0, *)) {
+        //     [flashButton setImage:[UIImage systemImageNamed:@"bolt.a.fill"]];
+        // } else {
             [flashButton setImage:[UIImage imageNamed:@"bolt.a"]];
-        }
+        // }
     }
 }
 
