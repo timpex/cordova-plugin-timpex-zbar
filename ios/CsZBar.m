@@ -10,9 +10,9 @@
 @property NSString *scanCallbackId;
 @property AlmaZBarReaderViewController *scanReader;
 @property (weak, nonatomic) IBOutlet UIView *sightLine;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *switchModeButton;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *flashButton;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
+@property (weak, nonatomic) IBOutlet UIButton *switchModeButton;
+@property (weak, nonatomic) IBOutlet UIButton *flashButton;
+@property (weak, nonatomic) IBOutlet UIButton *doneButton;
 @property NSArray<NSNumber*> *allowedLengths;
 @property NSArray<NSString*> *barcodeMayContain;
 @property (weak, nonatomic) IBOutlet UIView *colorOverlay;
@@ -131,18 +131,7 @@
             [self setTorchMode:AVCaptureTorchModeAuto];
             self.scanReader.cameraFlashMode = UIImagePickerControllerCameraFlashModeAuto;
         }
-        
-        // Hack to hide the bottom bar's Info button... originally based on http://stackoverflow.com/a/16353530
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 110000
-	NSInteger infoButtonIndex;
-        if ([[[UIDevice currentDevice] systemVersion] compare:@"10.0" options:NSNumericSearch] != NSOrderedAscending) {
-            infoButtonIndex = 1;
-        } else {
-            infoButtonIndex = 3;
-        }
-        UIView *infoButton = [[[[[self.scanReader.view.subviews objectAtIndex:2] subviews] objectAtIndex:0] subviews] objectAtIndex:infoButtonIndex];
-        [infoButton setHidden:YES];
-#endif
+
         if([params objectForKey:@"linearOnly"] != nil) {
             self.scanReader.inQrMode = ![[params objectForKey:@"linearOnly"] boolValue];
         } else {
@@ -161,7 +150,8 @@
         self.scanReader.showsZBarControls = NO;
         self.scanReader.showsCameraControls = NO;
         self.scanReader.cameraOverlayView = overlayView;
-        
+        self.scanReader.videoQuality = UIImagePickerControllerQualityTypeHigh; // Use high resolution video when available
+        [self.scanReader setModalPresentationStyle:UIModalPresentationFullScreen]; // Force fullscreen instead of sheet
         [self.viewController presentViewController:self.scanReader animated:YES completion:nil];
     }
 }
@@ -199,11 +189,7 @@
 }
 
 - (void)initDoneButton {
-    // if (@available(iOS 13.0, *)) {
-    //     [doneButton setImage:[UIImage systemImageNamed:@"xmark"]];
-    // } else {
-        [doneButton setImage:[UIImage imageNamed:@"xmark"]];
-    // }
+    [doneButton setImage:[UIImage imageNamed:@"xmark"] forState:UIControlStateNormal];
 }
 - (void)fadeIn: (UIView*)view completion:(void(^)(BOOL))onComplete {
     [UIView animateWithDuration:0.2f animations:^{
@@ -233,43 +219,23 @@
 
 - (void)updateModeButtonTitle {
     if(self.scanReader.inQrMode) {
-        // if (@available(iOS 13.0, *)) {
-        //     [switchModeButton setImage:[UIImage systemImageNamed:@"qrcode"]];
-        // } else {
-            [switchModeButton setImage:[UIImage imageNamed:@"qrcode"]];
-        // }
+        [switchModeButton setImage:[UIImage imageNamed:@"qrcode"] forState:UIControlStateNormal];
     }
     else {
-        // if (@available(iOS 13.0, *)) {
-        //     [switchModeButton setImage:[UIImage systemImageNamed:@"barcode"]];
-        // } else {
-            [switchModeButton setImage:[UIImage imageNamed:@"barcode"]];
-        // }
+        [switchModeButton setImage:[UIImage imageNamed:@"barcode"] forState:UIControlStateNormal];
     }
 }
 
 - (void)updateFlashButton {
     AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     if(device.torchMode == AVCaptureTorchModeOn) {
-        // if (@available(iOS 13.0, *)) {
-        //     [flashButton setImage:[UIImage systemImageNamed:@"bolt.fill"]];
-        // } else {
-            [flashButton setImage:[UIImage imageNamed:@"bolt"]];
-        // }
+        [flashButton setImage:[UIImage imageNamed:@"bolt"] forState:UIControlStateNormal];
     }
     else if(device.torchMode == AVCaptureTorchModeOff){
-        // if (@available(iOS 13.0, *)) {
-        //     [flashButton setImage:[UIImage systemImageNamed:@"bolt.slash.fill"]];
-        // } else {
-            [flashButton setImage:[UIImage imageNamed:@"bolt.slash"]];
-        // }
+        [flashButton setImage:[UIImage imageNamed:@"bolt.slash"] forState:UIControlStateNormal];
     }
     else if(device.torchMode == AVCaptureTorchModeAuto){
-        // if (@available(iOS 13.0, *)) {
-        //     [flashButton setImage:[UIImage systemImageNamed:@"bolt.a.fill"]];
-        // } else {
-            [flashButton setImage:[UIImage imageNamed:@"bolt.a"]];
-        // }
+        [flashButton setImage:[UIImage imageNamed:@"bolt.a"] forState:UIControlStateNormal];
     }
 }
 
@@ -283,6 +249,7 @@
 
 - (void)setTorchMode:(AVCaptureTorchMode)torchMode {
     AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    if(![device isTorchModeSupported:torchMode]) return;
     [device lockForConfiguration:nil];
     [device setTorchMode:torchMode];
     [self updateFlashButton];
@@ -337,14 +304,6 @@
        }];
 }
 
-- (IBAction)cancelPressed:(id)sender {
-    [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
-        self.scanInProgress = NO;
-        [self sendScanResult: [CDVPluginResult
-                               resultWithStatus: CDVCommandStatus_ERROR
-                               messageAsString: @"cancelled"]];
-    }];
-}
 - (IBAction)switchModePressed:(id)sender {
     [self setMode:!self.scanReader.inQrMode];
 }

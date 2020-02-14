@@ -44,42 +44,34 @@
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation) fromInterfaceOrientation {
     CGRect screenRect = [[UIScreen mainScreen] bounds];
-    
+    CGRect layoutFrame = screenRect;
     [self updateScanCrop];
     
-    [self.cameraOverlayView setFrame:screenRect];
+    if (@available(iOS 11, *)) {
+        layoutFrame = [[[[UIApplication sharedApplication] keyWindow] safeAreaLayoutGuide] layoutFrame];
+    }
+
+    [self.cameraOverlayView setFrame:layoutFrame];
     [self.cameraOverlayView layoutIfNeeded];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    UIToolbar* toolbar = [[controls subviews] firstObject];
-    if (![toolbar isKindOfClass:UIToolbar.class])
-        return;
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-    // HACK to hide the Info button
-    for (UIBarButtonItem* item in [toolbar items]) {
-        UIButton* button = [item customView];
-        if ([button isKindOfClass:UIButton.class]) {
-            UIButtonType buttonType = [button buttonType];
-            if (buttonType == UIButtonTypeInfoDark || buttonType == UIButtonTypeInfoLight) {
-                [button setHidden:YES];
-            }
-        }
-    }
-#endif
 }
 
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
     CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGRect layoutFrame = screenRect;
     [self.readerView setFrame:screenRect];
     [self updateScanCrop];
     
-    [self.cameraOverlayView setFrame:screenRect];
+    if (@available(iOS 11, *)) {
+        layoutFrame = [[[[UIApplication sharedApplication] keyWindow] safeAreaLayoutGuide] layoutFrame];
+    }
+
+    [self.cameraOverlayView setFrame:layoutFrame];
     [self.cameraOverlayView layoutIfNeeded];
 }
 
