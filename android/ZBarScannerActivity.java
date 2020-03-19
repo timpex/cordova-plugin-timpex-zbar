@@ -771,7 +771,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
     @Override
     public void finish() {
-        scannedValues = null;
         validCounter = 0;
         super.finish();
     }
