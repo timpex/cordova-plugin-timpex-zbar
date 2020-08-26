@@ -28,7 +28,7 @@ Arguments:
         flash: "on" || "off" || "auto" // defaults to "auto". See Quirks
         linearOnly: true || false // allow scanning of 2d codes. If linearOnly is true, a red line will show the active area of the camera. Not setting this will start the scanner in the last mode used.
         multiscan: true || false // allowing to scan multiple times before exiting.
-        onScanned: function (s) {} // Callback function used for validating the scanned qr-/barcode in Javascript. Is valid if no exception is thrown.
+        validate: function (s) {} // Callback function used for validating the scanned qr-/barcode in Javascript. Is valid if no exception is thrown or function returns true.
     }
     ```
 

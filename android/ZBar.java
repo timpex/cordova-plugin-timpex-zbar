@@ -107,12 +107,22 @@ public class ZBar extends CordovaPlugin {
                 scanCallbackContext.error("Scan failed due to an error");
                 break;
             case ZBarScannerActivity.RESULT_DONE:
-                scanCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.NO_RESULT));
+                onDone(result);
                 break;
             default:
                 scanCallbackContext.error("Unknown error");
         }
         onFinish();
+    }
+
+    private void onDone(Intent result) {
+        ArrayList<String> results = result.getStringArrayListExtra(ZBarScannerActivity.EXTRA_VALUES);
+        if(results.size() > 0) {
+            JSONArray jsonResult = new JSONArray(results);
+            scanCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, jsonResult));
+        } else {
+            scanCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.NO_RESULT));
+        }
     }
 
     private void onFinish() {

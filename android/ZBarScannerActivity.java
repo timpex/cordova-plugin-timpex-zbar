@@ -59,6 +59,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     // Public Constants ------------------------------------------------
 
     public static final String EXTRA_QRVALUE = "qrValue";
+    public static final String EXTRA_VALUES = "values";
     public static final String EXTRA_PARAMS = "params";
     public static final int RESULT_ERROR = RESULT_FIRST_USER + 1;
     public static final int RESULT_DONE = RESULT_ERROR + 1;
@@ -704,7 +705,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     }
 
     public void onDone(View view) {
-        setResult(RESULT_DONE);
+        Intent result = new Intent ();
+        result.putExtra(EXTRA_VALUES, scannedValues);
+        setResult(RESULT_DONE, result);
         finish();
     }
    
