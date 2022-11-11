@@ -17,8 +17,8 @@ import android.hardware.Camera.PreviewCallback;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -59,6 +59,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     // Public Constants ------------------------------------------------
 
     public static final String EXTRA_QRVALUE = "qrValue";
+    public static final String EXTRA_VALUES = "values";
     public static final String EXTRA_PARAMS = "params";
     public static final int RESULT_ERROR = RESULT_FIRST_USER + 1;
     public static final int RESULT_DONE = RESULT_ERROR + 1;
@@ -71,8 +72,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private SurfaceHolder holder;
     private ImageScanner scanner;
     private int surfW, surfH;
-    private ArrayList<String> scannedValues = new ArrayList<String>();
-    private Toast toast = null;
+    private ArrayList<String> scannedValues;
+    private ArrayList<String> validValues;
+    private Toast toast;
     private Handler delayHandler;
     private boolean isScanBlocked = false;
     private int validCounter = 0;
@@ -160,6 +162,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         // Initiate instance variables
         autoFocusHandler = new Handler();
         scanner = new ImageScanner();
+        scannedValues = new ArrayList<String>();
+        validValues = new ArrayList<String>();
         toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
         delayHandler = new Handler();
 
@@ -455,7 +459,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
                     if (scannedValues.contains(qrValue)) {
                         toast.setText("QR/Barcode has already been scanned!");
-                        vibrate(SUCCESS);
+                        vibrate(VibrationPattern.ERROR);
                         toast.show();
                         continue;
                     }
@@ -704,12 +708,15 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     }
 
     public void onDone(View view) {
-        setResult(RESULT_DONE);
+        Intent result = new Intent ();
+        result.putExtra(EXTRA_VALUES, validValues);
+        setResult(RESULT_DONE, result);
         finish();
     }
    
     public void addValidValue(String value) {
-        vibrate(SUCCESS);
+        validValues.add(value);
+        vibrate(VibrationPattern.SUCCESS);
         runOnUiThread(() -> {
             incrementValidCounter();
             flashOverlayView(0xFF00FF00);
@@ -718,7 +725,7 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     }
 
     public void addInvalidValue(String value) {
-        vibrate(ERROR);
+        vibrate(VibrationPattern.ERROR);
         runOnUiThread(() -> {
             flashOverlayView(0xFFFF0000);
             addLabelValue(value, 0xFFFF0000);
@@ -772,6 +779,9 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     @Override
     public void finish() {
         validCounter = 0;
+        isScanBlocked = false;
+        scannedValues = new ArrayList<String>();
+        validValues = new ArrayList<String>();
         super.finish();
     }
 }

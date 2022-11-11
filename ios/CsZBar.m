@@ -298,10 +298,19 @@
 }
 
 - (IBAction)donePressed:(id)sender {
-     [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
-           self.scanInProgress = NO;
-           [self sendScanResult: [CDVPluginResult resultWithStatus: CDVCommandStatus_NO_RESULT]];
-       }];
+    if([scannedValues count] > 0) {
+        NSArray *array = [scannedValues copy];
+        [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
+            self.scanInProgress = NO;
+            [self sendScanResult: [CDVPluginResult resultWithStatus: CDVCommandStatus_OK
+                                messageAsArray: array]];
+        }];
+    } else {
+        [self.scanReader dismissViewControllerAnimated: YES completion: ^(void) {
+            self.scanInProgress = NO;
+            [self sendScanResult: [CDVPluginResult resultWithStatus: CDVCommandStatus_NO_RESULT]];
+        }];
+    }
 }
 
 - (IBAction)switchModePressed:(id)sender {
