@@ -31,9 +31,8 @@ ZBar.prototype = {
                     exec(() => {}, () => {}, 'CsZBar', 'addInvalidItem', [value]);
                 });
             }
-
         }
-               
+
         exec(onScanned, failure, 'CsZBar', 'scan', [params]);
     },
 

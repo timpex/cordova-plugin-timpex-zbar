@@ -75,8 +75,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private ArrayList<String> scannedValues;
     private ArrayList<String> validValues;
     private Toast toast;
-    private Handler delayHandler;
-    private boolean isScanBlocked = false;
     private int validCounter = 0;
 
     // Customisable stuff
@@ -165,7 +163,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
         scannedValues = new ArrayList<String>();
         validValues = new ArrayList<String>();
         toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
-        delayHandler = new Handler();
 
 
         // Set the config for barcode formats
@@ -429,7 +426,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     private PreviewCallback previewCb = new PreviewCallback()
     {
         public void onPreviewFrame(byte[] data, Camera camera) {
-            if(isScanBlocked) return;
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
             Image barcode;
@@ -445,7 +441,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
             if (scanner.scanImage(barcode) != 0) {
                 String qrValue = "";
-                delay(500);
 
                 SymbolSet syms = scanner.getResults();
                 for (Symbol sym : syms) {
@@ -459,7 +454,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
                     if (scannedValues.contains(qrValue)) {
                         toast.setText("QR/Barcode has already been scanned!");
-                        vibrate(VibrationPattern.ERROR);
                         toast.show();
                         continue;
                     }
@@ -480,16 +474,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
             }
         }
     };
-
-    private void delay(int ms) {
-        isScanBlocked = true;
-        delayHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                isScanBlocked = false; 
-            }
-        }, ms);
-    }
 
     private boolean isValidBarcode(String qrValue) {
         return barcodeIsOfLength(qrValue) || barcodeContainsSubstring(qrValue);
@@ -779,7 +763,6 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     @Override
     public void finish() {
         validCounter = 0;
-        isScanBlocked = false;
         scannedValues = new ArrayList<String>();
         validValues = new ArrayList<String>();
         super.finish();
