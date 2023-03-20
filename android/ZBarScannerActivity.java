@@ -25,6 +25,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -172,7 +173,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
 
         // Set content view
         setContentView(getResourceId("layout/cszbarscanner"));
-
+        // Set keep screen on
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         // Draw/hide the sight
         findViewById(getResourceId("id/csZbarScannerSight")).setVisibility(View.INVISIBLE);
         android.widget.ImageButton switchModeButton = (android.widget.ImageButton) findViewById(getResourceId("id/csZbarSwitchModeButton"));
@@ -288,6 +290,8 @@ implements SurfaceHolder.Callback, View.OnClickListener {
     @Override
     public void onDestroy ()
     {
+        // Remove keep screen on
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         if(scanner != null) scanner.destroy();
         super.onDestroy();

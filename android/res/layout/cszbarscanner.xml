@@ -3,6 +3,7 @@
     android:id="@+id/csZbarScannerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     android:background="@color/csZbarScannerBackground" >
 
     <!-- Toolbar: Container for buttons (Flash, QR-/Barcode and Done/Exit) -->
